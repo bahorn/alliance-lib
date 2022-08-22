@@ -27,7 +27,8 @@ Algorithms are split into three categories:
 * Z3 based Solvers - SMT based solutions often perform well, but not as good as
   ILP.
 * Direct Approaches - More direct algorithms.
-* Heuristics - Experimental heuristics, not bounded.
+* Heuristics - Experimental heuristics, not bounded (beyond every vertex in a
+  -1-DA being an alliance.)
 
 Some variants require specific solvers to represent.
 
@@ -39,7 +40,8 @@ are exponential in some cases.
 
 ## Usage
 
-Setup a virtual environment, and use poetry to install the dependencies
+Setup a virtual environment, and use poetry to install the dependencies.
+
 
 ### Testing
 

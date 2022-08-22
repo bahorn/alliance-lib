@@ -95,8 +95,11 @@ def defensive_alliance_solution_size(
     def vertex_predicate(g: Graph, v: NodeId):
         return defensive_alliance_threshold(g, v, r)
 
+    def solution_predicate(g: Graph, v: NodeSet):
+        return is_defensive_alliance(g, v, r)
+
     res = alliance_solution_size(
-        graph, vertex_predicate, is_defensive_alliance, k
+        graph, vertex_predicate, solution_predicate, k
     )
 
     if res:

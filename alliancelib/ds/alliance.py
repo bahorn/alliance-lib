@@ -145,12 +145,12 @@ def convert_to_da(vs: VertexSet, r: int = -1) -> DefensiveAlliance:
 
 # Test functions
 
-def is_defensive_alliance(graph: Graph, nodes: NodeSet) -> bool:
+def is_defensive_alliance(graph: Graph, nodes: NodeSet, r: int) -> bool:
     """
     Check if a set of vertices is an alliance.
     """
     try:
-        DefensiveAlliance(graph, nodes)
+        DefensiveAlliance(graph, nodes, r)
         return True
     except ConstraintException:
         return False
@@ -165,5 +165,6 @@ __all__ = [
     'defensive_alliance_threshold',
     'NotGloballyMinimal',
     'NotLocallyMinimal',
-    'is_defensive_alliance'
+    'is_defensive_alliance',
+    'neighbours_in_set'
 ]
