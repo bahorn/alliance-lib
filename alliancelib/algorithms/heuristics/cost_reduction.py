@@ -5,20 +5,15 @@ needed.
 """
 import random
 from typing import Optional
-from collections.abc import Callable
 from alliancelib.ds import \
     Graph, \
     NodeSet, \
     VertexSet, \
     DefensiveAlliance, \
     convert_to_da, \
-    is_defensive_alliance, \
-    defensive_alliance_threshold, \
-    neighbours_in_set
+    is_defensive_alliance
 
-# These functions are used to guide towards an accepted solution.
-AcceptFunction = Callable[[Graph, NodeSet], bool]
-ScoreFunction = Callable[[Graph, NodeSet], float]
+from .cost_functions import da_score, AcceptFunction, ScoreFunction
 
 
 def reduce_cost_core(
@@ -45,10 +40,10 @@ def reduce_cost_core(
         if random.random() > p_add and len(current) > 0:
             candidates = [current[1] - set([i]) for i in current[1]]
         else:
-            candidates = filter(
+            candidates = list(filter(
                     lambda x: x not in current[1],
                     [current[1].union(set([i])) for i in graph.nodes()]
-            )
+            ))
 
         round_best: tuple[float, NodeSet] = (float('inf'), set())
 
@@ -85,13 +80,7 @@ def defensive_alliance_reduce_cost(
 
     # Look at the number of vertices we need to add to make it protected.
     def score_function(graph: Graph, ns: NodeSet) -> float:
-        score = 0.0
-        for vertex in ns:
-            threshold = defensive_alliance_threshold(graph, vertex, r)
-            count = neighbours_in_set(graph, vertex, ns)
-            score += (threshold - count) if (count < threshold) else 0
-
-        return score
+        return da_score(graph, ns, r)
 
     res = reduce_cost_core(
         graph, score_function, accept_function, steps, p_add
