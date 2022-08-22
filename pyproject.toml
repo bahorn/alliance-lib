@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "alliancelib"
+version = "0.1.0"
+description = ""
+authors = ["B Horn <b@horn.uk>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+networkx = "^2.8.6"
+PuLP = "^2.6.0"
+z3-solver = "^4.11.0"
+
+[tool.poetry.dev-dependencies]
+mypy = "^0.971"
+pylint = "^2.14.5"
+pytest = "^7.1.2"
+python-dotenv = "^0.20.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
