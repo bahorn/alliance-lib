@@ -136,14 +136,7 @@ class GloballyMinimalDefensiveAlliance(DefensiveAlliance):
 
 # Conversion functions
 
-def convert_ta_to_da(ta: ThresholdAlliance, r: int = -1) -> DefensiveAlliance:
-    """
-    Convert a ThresholdAlliance to a DefensiveAlliance
-    """
-    return DefensiveAlliance(ta.graph(), ta.vertices(), r)
-
-
-def convert_vs_to_da(vs: VertexSet, r: int = -1) -> DefensiveAlliance:
+def convert_to_da(vs: VertexSet, r: int = -1) -> DefensiveAlliance:
     """
     Convert a VertexSet to a DefensiveAlliance
     """
@@ -168,8 +161,7 @@ __all__ = [
     'ThresholdAlliance',
     'GloballyMinimalDefensiveAlliance',
     'LocallyMinimalDefensiveAlliance',
-    'convert_ta_to_da',
-    'convert_vs_to_da',
+    'convert_to_da',
     'defensive_alliance_threshold',
     'NotGloballyMinimal',
     'NotLocallyMinimal',

@@ -8,7 +8,7 @@ from pulp.constants import LpStatus
 from pulp.apis import LpSolver as Solver
 
 from alliancelib.ds import \
-    Graph, DefensiveAlliance, convert_ta_to_da, defensive_alliance_threshold
+    Graph, DefensiveAlliance, convert_to_da, defensive_alliance_threshold
 
 from .threshold_alliance import threshold_alliance_solver
 
@@ -39,7 +39,7 @@ def defensive_alliance_solver(graph: Graph,
     converted = None
 
     if alliance:
-        converted = convert_ta_to_da(alliance)
+        converted = convert_to_da(alliance)
 
     return (status, converted)
 

@@ -2,7 +2,9 @@
 """
 Searches for alliances up to a certain solution size.
 
-This is FPT for many cases.
+This is in FPT for many cases, include Defensive Alliance.
+This is because you can ignore vertices that would add too many neighbours,
+caping the total number of vertices to consider.
 """
 from typing import Optional
 from collections.abc import Callable
@@ -14,7 +16,7 @@ from alliancelib.ds import \
     DefensiveAlliance, \
     is_defensive_alliance, \
     defensive_alliance_threshold, \
-    convert_vs_to_da
+    convert_to_da
 
 VertexPredicate = Callable[[Graph, NodeId], bool]
 SolutionPredicate = Callable[[Graph, NodeSet], bool]
@@ -37,7 +39,7 @@ def traverse(graph: Graph,
         return None
 
     # compute the potential set of neighbours.
-    neighbours = set()
+    neighbours: NodeSet = set()
     for vertex in initial_set:
         neighbours = neighbours.union(set(graph.neighbors(vertex)))
     neighbours -= initial_set
@@ -98,7 +100,7 @@ def defensive_alliance_solution_size(
     )
 
     if res:
-        return convert_vs_to_da(res, r)
+        return convert_to_da(res, r)
 
     return None
 
