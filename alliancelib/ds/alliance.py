@@ -4,17 +4,20 @@ Builds upon VertexSets to implement the constraints we need to check various
 alliance properties.
 """
 import math
-from typing import List, Dict
+from typing import Dict
 from itertools import combinations
 
-from .types import NodeId, Graph
+from .types import NodeId, Graph, NodeSet
 from .vertex_set import \
-        ConstrainedVertexSet, VertexConstraint, ConstraintException
+    VertexSet, \
+    ConstrainedVertexSet, \
+    VertexConstraint, \
+    ConstraintException
 
 
 def neighbours_in_set(graph: Graph,
                       node: NodeId,
-                      nodeset: List[NodeId]
+                      nodeset: NodeSet
                       ) -> int:
     """
     Find the number of neighbours `node` has in `nodeset`.
@@ -32,7 +35,7 @@ def threshold_constraint(thresholds: Dict) -> VertexConstraint:
     """
     def threshold_constraint_function(graph: Graph,
                                       node: NodeId,
-                                      nodeset: List[NodeId]
+                                      nodeset: NodeSet
                                       ) -> bool:
         return neighbours_in_set(graph, node, nodeset) >= thresholds[node]
 
@@ -64,7 +67,7 @@ class ThresholdAlliance(ConstrainedVertexSet):
     Validated representation of a threshold alliance.
     """
 
-    def __init__(self, graph: Graph, indices: List[NodeId], thresholds: Dict):
+    def __init__(self, graph: Graph, indices: NodeSet, thresholds: Dict):
         super().__init__(graph, indices, threshold_constraint(thresholds))
 
 
@@ -73,7 +76,10 @@ class DefensiveAlliance(ThresholdAlliance):
     Validated representation of a defensive alliance.
     """
 
-    def __init__(self, graph: Graph, indices: List[NodeId], r: int = -1):
+    def __init__(self, graph: Graph, indices: NodeSet, r: int = -1):
+        if len(indices) == 0:
+            raise ConstraintException
+
         thresholds = {
             node: defensive_alliance_threshold(graph, node, r)
             for node in graph.nodes()
@@ -97,13 +103,13 @@ class LocallyMinimalDefensiveAlliance(DefensiveAlliance):
     result in another Defensive Alliance.
     """
 
-    def __init__(self, graph: Graph, indices: List[NodeId], r: int = -1):
+    def __init__(self, graph: Graph, indices: NodeSet, r: int = -1):
         # attempt to create a Defensive Alliance based on the combinations of
         # vertices.
         # if one exists, we need to raise an exception
         for indices_set in combinations(indices, len(indices) - 1):
             try:
-                DefensiveAlliance(graph, list(indices_set), r)
+                DefensiveAlliance(graph, set(indices_set), r)
                 raise NotLocallyMinimal()
             except ConstraintException:
                 continue
@@ -124,17 +130,37 @@ class GloballyMinimalDefensiveAlliance(DefensiveAlliance):
     Alliance.
     """
 
-    def __init__(self, graph: Graph, indices: List[NodeId], r: int = -1):
+    def __init__(self, graph: Graph, indices: NodeSet, r: int = -1):
         super().__init__(graph, indices, r)
 
 
 # Conversion functions
 
-def convert_ta_to_da(ta: ThresholdAlliance, r=-1) -> DefensiveAlliance:
+def convert_ta_to_da(ta: ThresholdAlliance, r: int = -1) -> DefensiveAlliance:
     """
     Convert a ThresholdAlliance to a DefensiveAlliance
     """
     return DefensiveAlliance(ta.graph(), ta.vertices(), r)
+
+
+def convert_vs_to_da(vs: VertexSet, r: int = -1) -> DefensiveAlliance:
+    """
+    Convert a VertexSet to a DefensiveAlliance
+    """
+    return DefensiveAlliance(vs.graph(), vs.vertices(), r)
+
+
+# Test functions
+
+def is_defensive_alliance(graph: Graph, nodes: NodeSet) -> bool:
+    """
+    Check if a set of vertices is an alliance.
+    """
+    try:
+        DefensiveAlliance(graph, nodes)
+        return True
+    except ConstraintException:
+        return False
 
 
 __all__ = [
@@ -143,7 +169,9 @@ __all__ = [
     'GloballyMinimalDefensiveAlliance',
     'LocallyMinimalDefensiveAlliance',
     'convert_ta_to_da',
+    'convert_vs_to_da',
     'defensive_alliance_threshold',
     'NotGloballyMinimal',
-    'NotLocallyMinimal'
+    'NotLocallyMinimal',
+    'is_defensive_alliance'
 ]

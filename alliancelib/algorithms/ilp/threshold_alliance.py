@@ -10,13 +10,6 @@ from pulp.apis import LpSolver as Solver
 from alliancelib.ds import Graph, ThresholdAlliance
 
 
-def ilp_solution_to_threshold_alliance() -> Optional[ThresholdAlliance]:
-    """
-    Converts a ILP solution to a threshold alliance
-    """
-    return None
-
-
 def variable_name(name: Any) -> str:
     """
     Maping vertices to variable names
@@ -98,7 +91,7 @@ def threshold_alliance_solver(graph: Graph,
 
     solution = None
     if len(solution_indices) > 0:
-        solution = ThresholdAlliance(graph, solution_indices, thresholds)
+        solution = ThresholdAlliance(graph, set(solution_indices), thresholds)
 
     return (problem.status, solution)
 

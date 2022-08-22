@@ -3,9 +3,8 @@ Various classes that represent VertexSets.
 
 These are used to build the representation of alliances.
 """
-from typing import List
 from collections.abc import Callable
-from .types import Graph, NodeId
+from .types import Graph, NodeId, NodeSet
 
 
 class VertexSet:
@@ -13,7 +12,7 @@ class VertexSet:
     Base representation of a set of vertices.
     """
 
-    def __init__(self, graph: Graph, indices: List[NodeId]):
+    def __init__(self, graph: Graph, indices: NodeSet):
         self._graph = graph
         self._indices = indices
 
@@ -23,7 +22,7 @@ class VertexSet:
         """
         return self._graph
 
-    def vertices(self) -> List[NodeId]:
+    def vertices(self) -> NodeSet:
         """
         return the vertices.
         """
@@ -40,7 +39,7 @@ class ConstraintException(Exception):
     """
 
 
-VertexConstraint = Callable[[Graph, NodeId, List[NodeId]], bool]
+VertexConstraint = Callable[[Graph, NodeId, NodeSet], bool]
 
 
 class ConstrainedVertexSet(VertexSet):
@@ -50,7 +49,7 @@ class ConstrainedVertexSet(VertexSet):
 
     def __init__(self,
                  graph: Graph,
-                 indices: List[NodeId],
+                 indices: NodeSet,
                  constraint: VertexConstraint):
         super().__init__(graph, indices)
 
