@@ -63,5 +63,6 @@ class ConstrainedVertexSet(VertexSet):
 __all__ = [
     'VertexSet',
     'ConstrainedVertexSet',
-    'VertexConstraint'
+    'VertexConstraint',
+    'ConstraintException'
 ]

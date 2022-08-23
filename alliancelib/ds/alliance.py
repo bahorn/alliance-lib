@@ -25,11 +25,10 @@ def neighbours_in_set(graph: Graph,
     """
     Find the number of neighbours `node` has in `nodeset`.
     """
-    res = 0
-    for potential_neighbour in nodeset:
-        if graph.has_edge(node, potential_neighbour):
-            res += 1
-    return res
+    return sum(
+        graph.has_edge(node, potential_neighbour)
+        for potential_neighbour in nodeset
+    )
 
 
 def threshold_constraint(thresholds: Dict) -> VertexConstraint:
