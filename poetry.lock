@@ -299,7 +299,7 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
 
 [[package]]
 name = "z3-solver"
-version = "4.11.0.0"
+version = "4.11.1.0"
 description = "an efficient SMT solver library"
 category = "main"
 optional = false
@@ -582,10 +582,10 @@ wrapt = [
     {file = "wrapt-1.14.1.tar.gz", hash = "sha256:380a85cf89e0e69b7cfbe2ea9f765f004ff419f34194018a6827ac0e3edfed4d"},
 ]
 z3-solver = [
-    {file = "z3-solver-4.11.0.0.tar.gz", hash = "sha256:ee5ead0811a21d67ca6320c0abd6bded794dfed887635fc6d8325adf3d8910d0"},
-    {file = "z3_solver-4.11.0.0-py2.py3-none-macosx_10_16_x86_64.whl", hash = "sha256:101e9056eb6dadfe6f058693bc2b461d464dcf977b9b30fa2c634b63d6bbf16f"},
-    {file = "z3_solver-4.11.0.0-py2.py3-none-macosx_11_0_arm64.whl", hash = "sha256:eed53801cdf454595d7d5dd13ab984df849215f41f2656d85925cc1f545ba26f"},
-    {file = "z3_solver-4.11.0.0-py2.py3-none-manylinux1_x86_64.whl", hash = "sha256:6976e6bee285b0366494b30e92e5d4b2649aaf73a3e9022d7069bdbae6d1576f"},
-    {file = "z3_solver-4.11.0.0-py2.py3-none-win32.whl", hash = "sha256:d428d6592960aea0e99fb4b9dd5479ea8395a6a48e0178030304e72f5fb83c3e"},
-    {file = "z3_solver-4.11.0.0-py2.py3-none-win_amd64.whl", hash = "sha256:3f7b6d642b81a1535bca8ae0ab8bf948176b62b714f7abbb635246fab67d2c21"},
+    {file = "z3-solver-4.11.1.0.tar.gz", hash = "sha256:0f7c6ae387990476e923386bdeccc2dbcc5b05c1832635a7e9958e34557d9dc4"},
+    {file = "z3_solver-4.11.1.0-py2.py3-none-macosx_10_16_x86_64.whl", hash = "sha256:206932d1875c700b47ff49bc77c6e4099c4b4c2ee0d0ebcf80353a11d199364a"},
+    {file = "z3_solver-4.11.1.0-py2.py3-none-macosx_11_0_arm64.whl", hash = "sha256:cd6fea36bb46bc318827af617c1448c0b5cab4df2c56677f374fad40199624f5"},
+    {file = "z3_solver-4.11.1.0-py2.py3-none-manylinux1_x86_64.whl", hash = "sha256:986d87699fb9aba54af92f9068d307f817b0cb7c754ddc6c0bc3378ac19c7ac0"},
+    {file = "z3_solver-4.11.1.0-py2.py3-none-win32.whl", hash = "sha256:b42388c15baa5e759fcd33ae6078d034a17c10c1eb1890e79d98b47ede9e7dfa"},
+    {file = "z3_solver-4.11.1.0-py2.py3-none-win_amd64.whl", hash = "sha256:fd52a0409cb2da015da67a91202a9a406ffd79d7d43bdb11962c63af51655f9b"},
 ]
