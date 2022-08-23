@@ -1,3 +1,4 @@
+# pylint: disable=E0401
 """
 Implementation of an Z3 solver for Threshold Alliance
 """
@@ -16,6 +17,9 @@ def variable_name(name: Any) -> str:
 
 
 def bool_to_int(inp: Bool) -> Int:
+    """
+    Maps a z3 bool to a int, so it can be used in sums.
+    """
     return If(inp, 1, 0)
 
 
@@ -83,10 +87,9 @@ def threshold_alliance_solver(graph: Graph,
 
     solution_indices = []
 
-    m = problem.model()
+    model = problem.model()
     for variable in variables['backwards']:
-        print(variable, m)
-        if m.evaluate(variable):
+        if model.evaluate(variable):
             solution_indices.append(variables['backwards'][variable])
 
     solution = None

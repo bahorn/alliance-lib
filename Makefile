@@ -7,5 +7,5 @@ mypy:
 	mypy alliancelib
 
 pylint:
-	pylint alliancelib
+	pylint alliancelib --disable=R0801
 
