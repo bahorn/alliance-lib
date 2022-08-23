@@ -6,6 +6,7 @@ can't be further reduced.
 This is exponetial time, so it can't be ran on anything too large but is useful
 to verify gadgets.
 """
+import random
 from itertools import combinations
 
 from typing import Optional
@@ -34,7 +35,12 @@ def find_minimal_rec(graph: Graph,
     """
     hit = False
 
-    for attempt in combinations(nodes, len(nodes) - 1):
+    # randomize this so repeated iterations can potentially find different
+    # alliances quickly.
+    combos = list(combinations(nodes, len(nodes) - 1))
+    random.shuffle(combos)
+
+    for attempt in combos:
         res = chisel(graph, protected, set(attempt))
         if res != set():
             hit = True

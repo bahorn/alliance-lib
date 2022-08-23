@@ -29,7 +29,7 @@ class VertexSet:
         return self._indices
 
     def __str__(self) -> str:
-        return str(self._indices)
+        return type(self).__name__ + str(self._indices)
 
 
 class ConstraintException(Exception):
