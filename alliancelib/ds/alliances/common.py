@@ -1,7 +1,5 @@
-# pylint: disable=C0103
 """
-Builds upon VertexSets to implement the constraints we need to check various
-alliance properties.
+Common functions that get used a lot.
 """
 from collections.abc import Callable
 
