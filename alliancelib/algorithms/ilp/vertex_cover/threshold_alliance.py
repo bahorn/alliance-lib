@@ -2,41 +2,22 @@
 """
 Vertex Cover Algorithms.
 """
-from typing import Any, Dict, Optional
+from typing import Dict, Optional
 from itertools import combinations
 
 from pulp import LpProblem, LpVariable, LpMinimize, lpSum
 from pulp.apis import LpSolver as Solver
-from pulp.constants import \
-    LpStatus, \
-    LpSolutionOptimal, \
-    LpSolutionIntegerFeasible
 
 from alliancelib.ds import \
     Graph, \
     NodeSet, \
     ThresholdAlliance, \
-    convert_to_da, \
     neighbours_in_set, \
-    neighbours_in_set_count, \
-    defensive_alliance_threshold
+    neighbours_in_set_count
 
-VertexCover = NodeSet
+from alliancelib.algorithms.ilp.common import variable_name, valid_solution
 
-
-def valid_solution(status: LpStatus) -> bool:
-    """
-    Test if the ILP was solved, if not optimal.
-    """
-    return status in [LpSolutionIntegerFeasible, LpSolutionOptimal]
-
-
-def variable_name(name: Any) -> str:
-    """
-    Maping sets of vertices to a variable name
-    """
-    name_ = str(name).replace(" ", '')
-    return f'v_{name_}'
+from .common import VertexCover
 
 
 def vc_ilp_model(graph: Graph,
@@ -142,12 +123,11 @@ def model_to_alliance(graph: Graph,
     return ThresholdAlliance(graph, vertices, thresholds)
 
 
-def threshold_alliance_vertex_cover(
-                                    graph: Graph,
-                                    thresholds: Dict,
-                                    vc: VertexCover,
-                                    solver: Solver,
-                                    ) -> Optional[ThresholdAlliance]:
+def threshold_alliance_solver(graph: Graph,
+                              thresholds: Dict,
+                              vc: VertexCover,
+                              solver: Solver,
+                              ) -> Optional[ThresholdAlliance]:
     """
     Computes an alliance based of a known vertex cover.
     This has a O(2^vc * ILP), which isn't good!
@@ -193,29 +173,6 @@ def threshold_alliance_vertex_cover(
     return None
 
 
-def defensive_alliance_vertex_cover(
-                                    graph: Graph,
-                                    vc: VertexCover,
-                                    solver: Solver,
-                                    r: int = -1
-                                    ) -> Optional[ThresholdAlliance]:
-    """
-    Find an defensive alliance based on vertex cover.
-    """
-    thresholds = {
-        node: defensive_alliance_threshold(graph, node, r)
-        for node in graph.nodes()
-    }
-
-    alliance = threshold_alliance_vertex_cover(graph, thresholds, vc, solver)
-
-    if alliance:
-        return convert_to_da(alliance)
-
-    return None
-
-
 __all__ = [
-    'threshold_alliance_vertex_cover',
-    'defensive_alliance_vertex_cover'
+    'threshold_alliance_solver'
 ]

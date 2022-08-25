@@ -2,9 +2,9 @@ import os
 import networkx as nx
 from pulp.apis import get_solver
 from pulp.constants import LpSolutionOptimal
-from alliancelib.algorithms.ilp import defensive_alliance_solver
+from alliancelib.algorithms.ilp.direct import defensive_alliance_solver
 
-g = nx.gnp_random_graph(100, 0.10)
+g = nx.gnp_random_graph(100, 0.08)
 solver = get_solver(os.getenv('ILP_SOLVER') or 'PULP_CBC_CMD')
 status, alliance = defensive_alliance_solver(g, solver)
 

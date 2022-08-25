@@ -1,7 +1,7 @@
 """
 Implementation of an ILP solver for Threshold Alliance
 """
-from typing import Any, Dict, Optional
+from typing import Dict, Optional
 
 from pulp import LpProblem, LpVariable, LpMinimize, lpSum
 from pulp.constants import LpStatus
@@ -9,12 +9,7 @@ from pulp.apis import LpSolver as Solver
 
 from alliancelib.ds import Graph, ThresholdAlliance
 
-
-def variable_name(name: Any) -> str:
-    """
-    Maping vertices to variable names
-    """
-    return f'v_{name}'
+from alliancelib.algorithms.ilp.common import variable_name
 
 
 def threshold_alliance_problem(graph: Graph,
