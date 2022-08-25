@@ -4,6 +4,8 @@ Library for working with problems similar to Defensive Alliance.
 
 Written to help with experiments for my Masters Thesis.
 
+If you use this, please verify the implementations! There may be bugs!
+
 ## Overview
 
 The library is fairly functional in design.

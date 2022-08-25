@@ -6,7 +6,7 @@ from collections.abc import Callable
 from alliancelib.ds import \
     Graph, \
     NodeSet, \
-    neighbours_in_set, \
+    neighbours_in_set_count, \
     defensive_alliance_threshold
 
 
@@ -24,7 +24,7 @@ def da_score(graph: Graph, ns: NodeSet, r: int = -1) -> float:
     score = 0.0
     for vertex in ns:
         threshold = defensive_alliance_threshold(graph, vertex, r)
-        count = neighbours_in_set(graph, vertex, ns)
+        count = neighbours_in_set_count(graph, vertex, ns)
         score += (threshold - count) if (count < threshold) else 0
 
     return score

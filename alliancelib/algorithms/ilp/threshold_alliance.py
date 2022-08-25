@@ -26,7 +26,7 @@ def threshold_alliance_problem(graph: Graph,
     """
     Generate an instance of a threshold alliance problem.
     """
-    problem = LpProblem("Threshold Alliance", LpMinimize)
+    problem = LpProblem("Threshold_Alliance", LpMinimize)
 
     # Create a boolean variable for each vertex
     vertices = []

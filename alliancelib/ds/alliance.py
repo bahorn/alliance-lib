@@ -18,16 +18,27 @@ from .vertex_set import \
 ProtectionFunction = Callable[[Graph, NodeId, NodeSet], bool]
 
 
-def neighbours_in_set(graph: Graph,
-                      node: NodeId,
-                      nodeset: NodeSet
-                      ) -> int:
+def neighbours_in_set(graph: Graph, node: NodeId, nodeset: NodeSet) -> NodeSet:
+    """
+    Find a set of neighbours in the nodeset for `node`.
+    """
+    res: NodeSet = set()
+    for potential_neighbour in filter(lambda x: x != node, nodeset):
+        if graph.has_edge(node, potential_neighbour):
+            res = res.union({potential_neighbour})
+    return res
+
+
+def neighbours_in_set_count(graph: Graph,
+                            node: NodeId,
+                            nodeset: NodeSet
+                            ) -> int:
     """
     Find the number of neighbours `node` has in `nodeset`.
     """
     return sum(
         graph.has_edge(node, potential_neighbour)
-        for potential_neighbour in nodeset
+        for potential_neighbour in filter(lambda x: x != node, nodeset)
     )
 
 
@@ -39,7 +50,8 @@ def threshold_constraint(thresholds: Dict) -> VertexConstraint:
                                       node: NodeId,
                                       nodeset: NodeSet
                                       ) -> bool:
-        return neighbours_in_set(graph, node, nodeset) >= thresholds[node]
+        return neighbours_in_set_count(graph, node, nodeset) \
+                >= thresholds[node]
 
     return threshold_constraint_function
 
@@ -64,7 +76,7 @@ def da_is_protected(graph: Graph, node: NodeId, nodes: NodeSet, r: int = -1):
     """
     Check if a vertex is protected.
     """
-    return neighbours_in_set(graph, node, nodes) >= \
+    return neighbours_in_set_count(graph, node, nodes) >= \
         defensive_alliance_threshold(graph, node, r)
 
 
@@ -215,6 +227,7 @@ __all__ = [
     'NotLocallyMinimal',
     'is_defensive_alliance',
     'neighbours_in_set',
+    'neighbours_in_set_count',
     'da_is_protected',
     'chisel',
     'ProtectionFunction'
