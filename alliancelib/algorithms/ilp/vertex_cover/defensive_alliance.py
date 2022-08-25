@@ -6,11 +6,11 @@ from typing import Optional
 
 from pulp.apis import LpSolver as Solver
 
-from alliancelib.ds import \
-    Graph, \
+from alliancelib.ds.types import Graph
+from alliancelib.ds.alliances.da import \
     DefensiveAlliance, \
-    convert_to_da, \
     defensive_alliance_threshold
+from alliancelib.ds.alliances.conversion import convert_to_da
 
 from .common import VertexCover
 from .threshold_alliance import threshold_alliance_solver

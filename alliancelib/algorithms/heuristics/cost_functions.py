@@ -3,11 +3,9 @@
 Collection of cost functions to use for evaluating an Alliance
 """
 from collections.abc import Callable
-from alliancelib.ds import \
-    Graph, \
-    NodeSet, \
-    neighbours_in_set_count, \
-    defensive_alliance_threshold
+from alliancelib.ds.types import Graph, NodeSet
+from alliancelib.ds.alliances.common import neighbours_in_set_count
+from alliancelib.ds.alliances.da import defensive_alliance_threshold
 
 
 # Type definitions for functions that guide towards an acceptable solution

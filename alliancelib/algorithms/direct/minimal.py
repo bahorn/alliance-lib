@@ -10,16 +10,14 @@ import random
 from itertools import combinations
 
 from typing import Optional
-from alliancelib.ds import \
-    Graph, \
-    NodeId, \
-    NodeSet, \
-    VertexSet, \
+from alliancelib.ds import Graph, NodeId, NodeSet, VertexSet
+
+from alliancelib.ds.alliances.gmda import \
     GloballyMinimalDefensiveAlliance, \
-    convert_to_gmda, \
-    chisel, \
-    ProtectionFunction, \
-    da_is_protected
+    chisel
+from alliancelib.ds.alliances.da import da_is_protected
+from alliancelib.ds.alliances.conversion import convert_to_gmda
+from alliancelib.ds.alliances.common import ProtectionFunction
 
 
 def find_minimal_rec(graph: Graph,

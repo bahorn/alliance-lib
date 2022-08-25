@@ -5,13 +5,12 @@ needed.
 """
 import random
 from typing import Optional
-from alliancelib.ds import \
-    Graph, \
-    NodeSet, \
-    VertexSet, \
+from alliancelib.ds.types import Graph, NodeSet
+from alliancelib.ds.vertex_set import VertexSet
+from alliancelib.ds.alliances.da import \
     DefensiveAlliance, \
-    convert_to_da, \
     is_defensive_alliance
+from alliancelib.ds.alliances.conversion import convert_to_da
 
 from .cost_functions import da_score, AcceptFunction, ScoreFunction
 

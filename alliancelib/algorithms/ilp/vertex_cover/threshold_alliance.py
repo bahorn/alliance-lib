@@ -8,12 +8,11 @@ from itertools import combinations
 from pulp import LpProblem, LpVariable, LpMinimize, lpSum
 from pulp.apis import LpSolver as Solver
 
-from alliancelib.ds import \
-    Graph, \
-    NodeSet, \
-    ThresholdAlliance, \
+from alliancelib.ds.types import Graph, NodeSet
+from alliancelib.ds.alliances.common import \
     neighbours_in_set, \
     neighbours_in_set_count
+from alliancelib.ds.alliances.threshold import ThresholdAlliance
 
 from alliancelib.algorithms.ilp.common import variable_name, valid_solution
 

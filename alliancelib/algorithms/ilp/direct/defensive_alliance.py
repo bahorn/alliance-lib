@@ -7,8 +7,11 @@ from typing import Optional
 from pulp.constants import LpStatus
 from pulp.apis import LpSolver as Solver
 
-from alliancelib.ds import \
-    Graph, DefensiveAlliance, convert_to_da, defensive_alliance_threshold
+from alliancelib.ds.types import Graph
+from alliancelib.ds.alliances.da import \
+    DefensiveAlliance, \
+    defensive_alliance_threshold
+from alliancelib.ds.alliances.conversion import convert_to_da
 
 from .threshold_alliance import threshold_alliance_solver
 

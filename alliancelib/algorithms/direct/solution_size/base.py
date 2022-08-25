@@ -6,20 +6,13 @@ This is in FPT for many cases, include Defensive Alliance.
 This is because you can ignore vertices that would add too many neighbours,
 caping the total number of vertices to consider.
 """
-from typing import Any, Optional
-from collections.abc import Callable
+from typing import Optional
 from alliancelib.ds import \
     Graph, \
-    NodeId, \
     NodeSet, \
-    VertexSet, \
-    DefensiveAlliance, \
-    is_defensive_alliance, \
-    defensive_alliance_threshold, \
-    convert_to_da
+    VertexSet
 
-VertexPredicate = Callable[[Graph, NodeId, Any], bool]
-SolutionPredicate = Callable[[Graph, NodeSet], bool]
+from .common import VertexPredicate, SolutionPredicate
 
 
 def traverse(graph: Graph,
@@ -71,8 +64,7 @@ def traverse(graph: Graph,
     return None
 
 
-def alliance_solution_size(
-                           graph: Graph,
+def alliance_solution_size(graph: Graph,
                            vertex_predicate: VertexPredicate,
                            solution_predicate: SolutionPredicate,
                            k: int
@@ -95,36 +87,6 @@ def alliance_solution_size(
     )
 
 
-def defensive_alliance_solution_size(
-                                     graph: Graph,
-                                     k: int,
-                                     r: int = -1
-                                     ) -> Optional[DefensiveAlliance]:
-    """
-    Find a DefensiveAlliance up to `k` vertices in size.
-
-    FPT running time.
-    """
-
-    def vertex_predicate(g: Graph, v: NodeId, d: int):
-        return defensive_alliance_threshold(g, v, r) <= d
-
-    def solution_predicate(g: Graph, v: NodeSet):
-        return is_defensive_alliance(g, v, r)
-
-    res = alliance_solution_size(
-        graph, vertex_predicate, solution_predicate, k
-    )
-
-    if res:
-        return convert_to_da(res, r)
-
-    return None
-
-
 __all__ = [
-    'defensive_alliance_solution_size',
-    'alliance_solution_size',
-    'VertexPredicate',
-    'SolutionPredicate'
+    'alliance_solution_size'
 ]

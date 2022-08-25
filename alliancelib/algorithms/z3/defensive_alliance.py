@@ -5,8 +5,11 @@ Z3 solver interface for r-Defensive Alliance
 from typing import Optional
 
 
-from alliancelib.ds import \
-    Graph, DefensiveAlliance, convert_to_da, defensive_alliance_threshold
+from alliancelib.ds.types import Graph
+from alliancelib.ds.alliances.da import \
+    DefensiveAlliance, \
+    defensive_alliance_threshold
+from alliancelib.ds.alliances.conversion import convert_to_da
 
 from .threshold_alliance import threshold_alliance_solver
 

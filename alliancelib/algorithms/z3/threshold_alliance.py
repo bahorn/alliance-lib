@@ -6,7 +6,8 @@ from typing import Any, Dict, Optional
 
 from z3 import Bool, Int, If, Sum, Solver, sat
 
-from alliancelib.ds import Graph, ThresholdAlliance
+from alliancelib.ds.types import Graph
+from alliancelib.ds.alliances.threshold import ThresholdAlliance
 
 
 def variable_name(name: Any) -> str:

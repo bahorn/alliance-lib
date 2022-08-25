@@ -13,7 +13,9 @@ from deap import base
 from deap import creator
 from deap import tools
 
-from alliancelib.ds import Graph, DefensiveAlliance, NodeSet
+from alliancelib.ds.types import Graph, NodeSet
+from alliancelib.ds.alliances.da import DefensiveAlliance
+
 from .cost_functions import da_score
 
 

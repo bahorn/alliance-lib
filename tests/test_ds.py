@@ -1,6 +1,7 @@
 import pytest
 import networkx as nx
-from alliancelib.ds import DefensiveAlliance, ConstraintException
+from alliancelib.ds.alliances.da import DefensiveAlliance
+from alliancelib.ds.vertex_set import ConstraintException
 
 
 def iterative_threshold(n, r):

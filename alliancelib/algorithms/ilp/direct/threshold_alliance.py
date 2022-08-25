@@ -7,7 +7,8 @@ from pulp import LpProblem, LpVariable, LpMinimize, lpSum
 from pulp.constants import LpStatus
 from pulp.apis import LpSolver as Solver
 
-from alliancelib.ds import Graph, ThresholdAlliance
+from alliancelib.ds.types import Graph
+from alliancelib.ds.alliances.threshold import ThresholdAlliance
 
 from alliancelib.algorithms.ilp.common import variable_name
 
