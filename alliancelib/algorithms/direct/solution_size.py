@@ -1,4 +1,4 @@
-# pylint: disable=C0103
+# pylint: disable=C0103,R0913
 """
 Searches for alliances up to a certain solution size.
 
@@ -6,7 +6,7 @@ This is in FPT for many cases, include Defensive Alliance.
 This is because you can ignore vertices that would add too many neighbours,
 caping the total number of vertices to consider.
 """
-from typing import Optional
+from typing import Any, Optional
 from collections.abc import Callable
 from alliancelib.ds import \
     Graph, \
@@ -18,13 +18,14 @@ from alliancelib.ds import \
     defensive_alliance_threshold, \
     convert_to_da
 
-VertexPredicate = Callable[[Graph, NodeId], bool]
+VertexPredicate = Callable[[Graph, NodeId, Any], bool]
 SolutionPredicate = Callable[[Graph, NodeSet], bool]
 
 
 def traverse(graph: Graph,
              initial_set: NodeSet,
              possible_vertices: NodeSet,
+             vertex_predicate: VertexPredicate,
              solution_predicate: SolutionPredicate,
              depth: int
              ) -> Optional[VertexSet]:
@@ -49,12 +50,18 @@ def traverse(graph: Graph,
     else:
         pass
 
-    for vertex in neighbours:
+    neighbours_ = filter(
+        lambda v: vertex_predicate(graph, v, depth),
+        neighbours
+    )
+
+    for vertex in neighbours_:
         vs = {vertex}
         res = traverse(
             graph,
             initial_set.union(vs),
             possible_vertices - vs,
+            vertex_predicate,
             solution_predicate,
             depth - 1
         )
@@ -75,10 +82,17 @@ def alliance_solution_size(
     """
     # first, find the vertices that satify the predicate.
     possible_vertices = set(
-        map(lambda v: vertex_predicate(graph, v), graph.nodes())
+        filter(lambda v: vertex_predicate(graph, v, k), graph.nodes())
     )
 
-    return traverse(graph, set(), possible_vertices, solution_predicate, k)
+    return traverse(
+        graph,
+        set(),
+        possible_vertices,
+        vertex_predicate,
+        solution_predicate,
+        k
+    )
 
 
 def defensive_alliance_solution_size(
@@ -92,8 +106,8 @@ def defensive_alliance_solution_size(
     FPT running time.
     """
 
-    def vertex_predicate(g: Graph, v: NodeId):
-        return defensive_alliance_threshold(g, v, r)
+    def vertex_predicate(g: Graph, v: NodeId, d: int):
+        return defensive_alliance_threshold(g, v, r) < d
 
     def solution_predicate(g: Graph, v: NodeSet):
         return is_defensive_alliance(g, v, r)
