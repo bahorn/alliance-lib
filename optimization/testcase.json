@@ -1,0 +1,16 @@
+{
+    "command": ["python3", "test.py", "{value1}", "{value2}"],
+    "objective": [-1.0, 1.0],
+    "parameters": {
+        "cxpb": 0.5,
+        "mutpb": 0.2,
+        "tournsize": 3,
+        "population": 100,
+        "iterations": 100,
+        "indpb": 0.2
+    },
+    "variables": {
+        "value1": ["float", [0, 1.0]],
+        "value2": ["float", [0, 100]]
+    }
+}
