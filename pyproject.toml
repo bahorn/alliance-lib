@@ -4,6 +4,13 @@ version = "0.1.0"
 description = ""
 authors = ["B Horn <b@horn.uk>"]
 
+[tool.poetry.dev-dependencies]
+mypy = "^0.971"
+pylint = "^2.14.5"
+pytest = "^7.1.2"
+python-dotenv = "^0.20.0"
+poethepoet = "^0.10.0"
+
 [tool.poetry.dependencies]
 python = "^3.10"
 networkx = "^2.8.6"
@@ -11,12 +18,14 @@ PuLP = "^2.6.0"
 z3-solver = "^4.11.0"
 deap = "^1.3.3"
 matplotlib = "^3.5.3"
+joblib = "^1.1.0"
 
-[tool.poetry.dev-dependencies]
-mypy = "^0.971"
-pylint = "^2.14.5"
-pytest = "^7.1.2"
-python-dotenv = "^0.20.0"
+
+[tool.poe.tasks]
+force-cuda11 = """
+pip3 install torch==1.12.0 torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu116
+pip install torch-scatter torch-sparse torch-cluster torch-spline-conv torch-geometric -f https://data.pyg.org/whl/torch-1.12.0+cu116.html
+"""
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

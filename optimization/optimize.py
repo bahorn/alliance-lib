@@ -5,6 +5,8 @@ You pass in a json file describing a target problem.
 
 Randomly generates new values in mutation, which might not be ideal for a
 speciifc problem.
+
+Mating may also not be ideal.
 """
 import logging
 import json
@@ -185,7 +187,8 @@ def main():
     with open(sys.argv[1], 'r') as f:
         problem = json.load(f)
         target = HyperparameterShell(problem)
-        print(target.run())
+        res = target.run()
+        print(res, res.fitness)
 
 
 if __name__ == "__main__":

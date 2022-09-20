@@ -1,4 +1,9 @@
 import sys
 import json
 
-print(json.dumps([float(sys.argv[1]), 100 + float(sys.argv[2])]))
+a = float(sys.argv[2]) + float(sys.argv[1])
+b = float(sys.argv[1])**2 + float(sys.argv[2])
+
+res = [a, b]
+
+print(json.dumps(res))

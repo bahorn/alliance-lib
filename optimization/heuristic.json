@@ -1,0 +1,17 @@
+{
+    "command": ["python3", "../examples/da_heuristic_wrapper.py", "{count}", "{steps}", "{p_add}"],
+    "objective": [1.0, -1.0, -1.0],
+    "parameters": {
+        "cxpb": 0.5,
+        "mutpb": 0.2,
+        "tournsize": 3,
+        "population": 32,
+        "iterations": 5,
+        "indpb": 0.1
+    },
+    "variables": {
+        "count": ["int", [1, 100]],
+        "steps": ["int", [1, 100]],
+        "p_add": ["float", [0.25, 1.0]]
+    }
+}
