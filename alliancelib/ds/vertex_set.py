@@ -31,6 +31,9 @@ class VertexSet:
     def __str__(self) -> str:
         return type(self).__name__ + str(self._indices)
 
+    def __dict__(self):
+        return list(self._indices)
+
 
 class ConstraintException(Exception):
     """
