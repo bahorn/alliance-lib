@@ -64,13 +64,19 @@ def step(arguments, generator, timelimit):
     return {'x': arguments[0], 'y': arguments[1], 'value': p}
 
 
-def experiment(name, x, y, generator,
-               timelimit=60, points_per_axis=10, samples_per_point=3):
+def experiment(name,
+               x,
+               y,
+               generator,
+               timelimit=60,
+               points_per_axis=10,
+               samples_per_point=3
+               ):
     x_range = list(
-        map(x[0], np.geomspace(x[1][0], x[1][1], num=points_per_axis))
+        map(x[0], np.linspace(x[1][0], x[1][1], num=points_per_axis))
     )
     y_range = list(
-        map(y[0], np.geomspace(y[1][0], y[1][1], num=points_per_axis))
+        map(y[0], np.linspace(y[1][0], y[1][1], num=points_per_axis))
     )
 
     values = [
