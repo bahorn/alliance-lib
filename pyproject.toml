@@ -10,6 +10,7 @@ pylint = "^2.14.5"
 pytest = "^7.1.2"
 python-dotenv = "^0.20.0"
 poethepoet = "^0.10.0"
+jupyterlab = "^3.4.8"
 
 [tool.poetry.dependencies]
 python = "^3.10"

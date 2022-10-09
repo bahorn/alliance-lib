@@ -5,7 +5,7 @@ These are used to build the representation of alliances.
 """
 from collections.abc import Callable
 from .types import Graph, NodeId, NodeSet
-
+import networkx as nx
 
 class VertexSet:
     """
@@ -33,6 +33,9 @@ class VertexSet:
 
     def __dict__(self):
         return list(self._indices)
+
+    def __len__(self):
+        return len(self._indices)
 
 
 class ConstraintException(Exception):

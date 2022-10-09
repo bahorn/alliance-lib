@@ -1,17 +1,13 @@
 import networkx as nx
 import click
 
-from experiment_base import experiment
+from experiment_base import ilp_da_solver, ilp_vc_da_solver
 
-
-def gnp_generator(a, b, seed):
-    return nx.gnp_random_graph(a, b, seed=seed)
-
-
-def waxman_generator(alpha):
-    def generator(a, b, seed):
-        return nx.waxman_graph(a, beta=b, alpha=alpha, seed=seed)
-    return generator
+from alliancelib.experiments.runner import experimental_setup
+from alliancelib.experiments.generator import \
+    GNPBetterGenerator, \
+    WaxmanGenerator, \
+    PlantedVertexCoverGenerator
 
 
 @click.command()
@@ -20,7 +16,7 @@ def waxman_generator(alpha):
 @click.option('--n-max', default=100)
 @click.option('--p-max', default=0.5)
 @click.option('--p-min', default=0.01)
-@click.option('--timelimit', default=60)
+@click.option('--timelimit', type=float, default=900)
 @click.option('--samples', default=3)
 @click.option('--axis', default=10)
 def gnp_generator_experiment(outfile,
@@ -32,25 +28,21 @@ def gnp_generator_experiment(outfile,
                              samples,
                              axis
                              ):
-
-    x = (int, (n_min, n_max))
-    y = (float, (p_min, p_max))
-    generator = gnp_generator
-
-    df = experiment(
-        "gnp-experiment",
-        x,
-        y,
-        generator,
-        timelimit=timelimit,
-        samples_per_point=samples,
-        points_per_axis=axis
+    generator = GNPBetterGenerator(
+        (n_min, n_max),
+        (p_min, p_max),
+        axis=axis,
+        samples=samples
     )
 
-    df = df.rename(columns={'x': 'n', 'y': 'p', 'value': 'time (s)'})
-    df.to_csv(outfile)
+    def ilp_da(graph):
+        res = ilp_da_solver(graph, time_limit=timelimit, threads=1)
+        return {'time': res[0], 'size': res[1]}
 
-    print(df)
+    algorithms = {'ilp_da': ilp_da}
+
+    results = experimental_setup(generator, algorithms, jobs=8)
+    results.to_csv(outfile)
 
 
 @click.command()
@@ -59,7 +51,9 @@ def gnp_generator_experiment(outfile,
 @click.option('--n-max', default=100)
 @click.option('--b-max', default=0.8)
 @click.option('--b-min', default=0.1)
-@click.option('--timelimit', default=60)
+@click.option('--a-max', default=0.2)
+@click.option('--a-min', default=0.2)
+@click.option('--timelimit', type=float, default=60.0)
 @click.option('--samples', default=3)
 @click.option('--axis', default=10)
 @click.option('--alpha', default=0.15)
@@ -68,29 +62,75 @@ def waxman_experiment(outfile,
                       n_max,
                       b_min,
                       b_max,
+                      a_min,
+                      a_max,
                       timelimit,
                       samples,
                       axis,
                       alpha
                       ):
-
-    x = (int, (n_min, n_max))
-    y = (float, (b_min, b_max))
-    generator = waxman_generator(alpha)
-
-    df = experiment(
-        "waxman-experiment",
-        x,
-        y,
-        generator,
-        timelimit=timelimit,
-        samples_per_point=samples,
-        points_per_axis=axis
+    generator = WaxmanGenerator(
+        (n_min, n_max),
+        (b_min, b_max),
+        (a_min, a_max),
+        axis=axis,
+        samples=samples
     )
 
-    df = df.rename(columns={'x': 'n', 'y': 'beta', 'value': 'time (s)'})
-    df.to_csv(outfile)
-    print(df)
+    def ilp_da(graph):
+        res = ilp_da_solver(graph, time_limit=timelimit, threads=1)
+        return {'time': res[0], 'size': res[1]}
+
+    algorithms = {'ilp_da': ilp_da}
+
+    results = experimental_setup(generator, algorithms, jobs=8)
+    results.to_csv(outfile)
+
+
+@click.command()
+@click.argument('outfile')
+@click.option('--timelimit', type=float, default=60.0)
+@click.option('--samples', default=3)
+@click.option('--axis', default=10)
+@click.option('--ni-min', default=5)
+@click.option('--ni-max', default=10)
+@click.option('--nx-min', default=5)
+@click.option('--nx-max', default=10)
+@click.option('--pi-min', default=0.5)
+@click.option('--pi-max', default=0.5)
+@click.option('--px-min', default=0.4)
+@click.option('--px-max', default=0.5)
+def vertex_cover_planted(outfile,
+                         ni_min,
+                         ni_max,
+                         nx_min,
+                         nx_max,
+                         pi_min,
+                         pi_max,
+                         px_min,
+                         px_max,
+                         timelimit,
+                         samples,
+                         axis
+                         ):
+    generator = PlantedVertexCoverGenerator(
+        (ni_min, ni_max),
+        (nx_min, nx_max),
+        (pi_min, pi_max),
+        (px_min, px_max),
+        axis=axis,
+        samples=samples
+    )
+
+    def ilp_vc_da(vc_graph):
+        vc, graph = vc_graph
+        res = ilp_vc_da_solver(graph, vc, time_limit=timelimit, threads=1)
+        return {'time': res[0], 'size': res[1]}
+
+    algorithms = {'ilp_vc_da': ilp_vc_da}
+
+    results = experimental_setup(generator, algorithms, jobs=8)
+    results.to_csv(outfile)
 
 
 @click.group()
@@ -100,3 +140,4 @@ def experiments():
 
 experiments.add_command(gnp_generator_experiment)
 experiments.add_command(waxman_experiment)
+experiments.add_command(vertex_cover_planted)

@@ -23,7 +23,8 @@ def defensive_alliance_ilp(filename, r, min_size, max_size, time_limit,
     da_solver = get_solver(
         os.getenv('ILP_SOLVER') or 'PULP_CBC_CMD',
         timeLimit=time_limit,
-        msg=verbose
+        msg=verbose,
+        threads=1
     )
 
     start = time.time()
