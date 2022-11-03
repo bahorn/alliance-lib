@@ -1,11 +1,12 @@
 """
 ILP Formulation to compute the Vertex Cover of a graph
 """
+from typing import Optional
 from pulp import LpProblem, LpVariable, LpMinimize, lpSum
 from pulp.apis import LpSolver as Solver
 
-from alliancelib.ds.types import Graph, NodeSet
-from alliancelib.algorithms.ilp.common import variable_name
+from alliancelib.ds.types import Graph
+from alliancelib.algorithms.ilp.common import variable_name, valid_solution
 
 from .common import VertexCover
 
@@ -35,10 +36,21 @@ def vertex_cover_ilp_model(graph: Graph) -> LpProblem:
     return problem
 
 
-def vertex_cover_solver(graph: Graph, solver: Solver):
+def vertex_cover_solver(graph: Graph, solver: Solver) -> Optional[VertexCover]:
     """
     Solve a Vertex Cover with the given solver.
     """
     model = vertex_cover_ilp_model(graph)
     solver.solve(model)
-    print(model.status)
+    if not valid_solution(model.status):
+        return None
+    state = {
+        variable.name: variable.varValue
+        for variable in model.variables()
+    }
+    res = []
+    for vertex in graph.nodes():
+        if state[variable_name(vertex)] == 1.0:
+            res.append(vertex)
+
+    return VertexCover(graph, set(res))

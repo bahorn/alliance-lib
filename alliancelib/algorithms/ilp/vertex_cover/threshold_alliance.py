@@ -16,12 +16,12 @@ from alliancelib.ds.alliances.threshold import ThresholdAlliance
 
 from alliancelib.algorithms.ilp.common import variable_name, valid_solution
 
-from .common import VertexCover
+from .common import VertexCover, VertexCoverSet
 
 
 def vc_ilp_model(graph: Graph,
                  thresholds: Dict,
-                 vc: VertexCover,
+                 vc: VertexCoverSet,
                  adjacent: Dict
                  ) -> LpProblem:
     """
@@ -67,7 +67,7 @@ def vc_ilp_model(graph: Graph,
 
 def neighbour_set(graph: Graph,
                   thresholds: Dict,
-                  vc: VertexCover,
+                  vc: VertexCoverSet,
                   subset: NodeSet
                   ) -> Dict:
     """
@@ -100,7 +100,7 @@ def neighbour_set(graph: Graph,
 def model_to_alliance(graph: Graph,
                       thresholds: Dict,
                       model: LpProblem,
-                      vc: NodeSet,
+                      vc: VertexCoverSet,
                       ns: Dict
                       ) -> ThresholdAlliance:
     """
@@ -122,15 +122,16 @@ def model_to_alliance(graph: Graph,
     return ThresholdAlliance(graph, vertices, thresholds)
 
 
-def threshold_alliance_solver(graph: Graph,
+def threshold_alliance_solver(vertex_cover: VertexCover,
                               thresholds: Dict,
-                              vc: VertexCover,
                               solver: Solver,
                               ) -> Optional[ThresholdAlliance]:
     """
     Computes an alliance based of a known vertex cover.
     This has a O(2^vc * ILP), which isn't good!
     """
+    graph = vertex_cover.graph()
+    vc = vertex_cover.vertices()
     # First, detect if we can include any single vertex as a solution on its
     # own.
     # We have do this, else we miss potential solutions.

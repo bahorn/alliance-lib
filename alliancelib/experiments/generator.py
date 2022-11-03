@@ -2,8 +2,10 @@
 Encapulate a generator for a specific graph type.
 """
 import itertools
+import random
 import numpy as np
 import networkx as nx
+import pandas as pd
 
 from alliancelib.experiments.generate import planted_vc
 from alliancelib.experiments.cleaning import min_degree_add
@@ -94,6 +96,54 @@ class GNPBetterGenerator(PreGeneratedGenerator):
         return (res1, None)
 
 
+class RegularGenerator(PreGeneratedGenerator):
+    """
+    Random Regular Graph Generator
+    """
+
+    def __init__(self, n_range, d_range, split='geom', axis=10, samples=3,
+                 seed=0):
+        splitter = np.linspace
+        if split == 'geom':
+            splitter = np.geomspace
+
+        nr = list(
+            map(int, splitter(n_range[0], n_range[1], num=axis))
+        )
+        dr = list(
+            map(int, splitter(d_range[0], d_range[1], num=axis))
+        )
+
+        # Keep x even, so n * d is always even.
+        self.potential = [
+            (x if x % 2 == 0 else x + 1, y, s)
+            for x, y, s in itertools.product(nr, dr, range(samples))
+        ]
+
+        self.axis = axis
+        self.samples = samples
+        self.seed = seed
+        self.split = split
+
+        super().__init__(
+            {idx: self.generate(idx) for idx in range(len(self.potential))}
+        )
+
+    def generate(self, idx, attempts=5):
+        """
+        Generate a graph, and its properties for a specific index
+        """
+        n, d, s = self.potential[idx]
+        res1 = {'n': n, 'd': d, 'iteration': s}
+        for i in range(attempts):
+            seed = gen_seed([self.seed, n, d, i, s])
+            g = nx.random_regular_graph(d, n, seed)
+            if nx.is_connected(g):
+                return (res1, g)
+
+        return (res1, None)
+
+
 def range_to_list(t, r, split, axis):
     splitter = np.linspace
     if split == 'geom':
@@ -142,6 +192,82 @@ class WaxmanGenerator(PreGeneratedGenerator):
         for i in range(attempts):
             seed = gen_seed([self.seed, n, b, a, s, i])
             g = nx.waxman_graph(n, beta=b, alpha=a, seed=seed)
+            if nx.is_connected(g):
+                return (res1, g)
+
+        return (res1, None)
+
+
+def waxman_degree_dist(n, count=100, beta=0.4, alpha=0.1, seed=None):
+    data = [{'idx': i, 'count': 0} for i in range(n)]
+    for i in range(count):
+        g = nx.waxman_graph(n, beta, alpha, seed=seed)
+        degrees = list(map(lambda count: count[1], g.degree(g.nodes)))
+        for degree in degrees:
+            data[degree]['count'] += 1
+    s = sum(map(lambda x: x['count'], data))
+    return list(map(lambda x: x['count'] / s, data))
+
+
+class WaxmanDegreeGenerator(PreGeneratedGenerator):
+    """
+    Generates Waxman graphs to observe their degree distribution, then uses a
+    configuration model to create graphs with the same distribution.
+    """
+
+    def __init__(self, n_range, b_range, a_range, split='geom',
+                 axis=10, samples=3, seed=0):
+        nr = range_to_list(int, n_range, split, axis)
+        br = range_to_list(float, b_range, split, axis)
+        ar = range_to_list(float, a_range, split, axis)
+
+        self.potential = [
+            (n, b, a, s)
+            for n, b, a, s in itertools.product(nr, br, ar, range(samples))
+        ]
+
+        self.axis = axis
+        self.samples = samples
+        self.seed = seed
+        self.split = split
+
+        super().__init__(
+            {idx: self.generate(idx) for idx in range(len(self.potential))}
+        )
+
+    def generate(self, idx, attempts=5):
+        """
+        Generate a graph, and its properties for a specific index
+        """
+        n, b, a, s = self.potential[idx]
+        res1 = {'n': n, 'b': b, 'a': a, 'iteration': s}
+        degree_dist = []
+
+        seed = gen_seed([self.seed, n, b, a, s, 0, 0, 1])
+        random.seed(seed)
+        df = waxman_degree_dist(n, beta=b, alpha=a, seed=seed)
+        # determine the degree distribution
+        while len(degree_dist) < n:
+            t = 0.0
+            c = random.random()
+            prev = 0
+            for idx, row in enumerate(df):
+                t += float(row)
+                if float(t) > c:
+                    break
+                prev = idx
+            degree_dist.append(prev)
+
+        if sum(degree_dist) % 2 == 1:
+            degree_dist[random.randint(0, n - 1)] += 1
+
+        for i in range(attempts):
+            seed = gen_seed([self.seed, n, b, a, s, i])
+            g = nx.configuration_model(degree_dist, seed=seed)
+            g = nx.Graph(g)
+            # remove any self edges. this technically messes up the
+            # distribution, but not in a large way.
+            g.remove_edges_from(nx.selfloop_edges(g))
             if nx.is_connected(g):
                 return (res1, g)
 

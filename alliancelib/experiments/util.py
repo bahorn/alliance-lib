@@ -1,3 +1,4 @@
+import signal
 import contextlib
 import joblib
 import numpy as np
@@ -18,6 +19,23 @@ def tqdm_joblib(tqdm_object):
     finally:
         joblib.parallel.BatchCompletionCallBack = old_batch_callback
         tqdm_object.close()
+
+
+# https://stackoverflow.com/questions/366682/how-to-limit-execution-time-of-a-function-call
+class TimeoutException(Exception):
+    pass
+
+
+@contextlib.contextmanager
+def timelimit(seconds):
+    def signal_handler(signum, frame):
+        raise TimeoutException("Timed out!")
+    signal.signal(signal.SIGALRM, signal_handler)
+    signal.alarm(int(seconds))
+    try:
+        yield
+    finally:
+        signal.alarm(0)
 
 
 def gen_seed(values):
