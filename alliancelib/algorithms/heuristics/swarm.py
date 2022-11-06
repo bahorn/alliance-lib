@@ -4,6 +4,7 @@ Implementation of a Mealpy solver using ABC for Defensive Alliance
 from alliancelib.ds.alliances.da import DefensiveAlliance
 from mealpy.swarm_based.ABC import OriginalABC
 from mealpy.swarm_based.BA import OriginalBA
+from mealpy.physics_based.SA import OriginalSA
 from .cost_functions import da_score
 
 
@@ -41,6 +42,24 @@ def ba_model(pop_size=50, loudness=0.8, pulse_rate=0.95, pf_min=0, pf_max=10):
             pulse_rate,
             pf_min,
             pf_max
+        )
+    return model
+
+
+def sa_model(pop_size=50, max_sub_iter=5, t0=1000, t1=1, move_count=5,
+             mutation_rate=0.1, mutation_step_size=0.1,
+             mutation_step_size_damp=0.99):
+    def model(generations):
+        return OriginalSA(
+            generations,
+            pop_size,
+            max_sub_iter,
+            t0,
+            t1,
+            move_count,
+            mutation_rate,
+            mutation_step_size,
+            mutation_step_size_damp
         )
     return model
 
