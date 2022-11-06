@@ -3,6 +3,7 @@ Implementation of a Mealpy solver using ABC for Defensive Alliance
 """
 from alliancelib.ds.alliances.da import DefensiveAlliance
 from mealpy.swarm_based.ABC import OriginalABC
+from mealpy.swarm_based.BA import OriginalBA
 from .cost_functions import da_score
 
 
@@ -14,32 +15,46 @@ def clean_solution(solution):
     return res
 
 
-class DAABC:
+def abc_model(pop_size=50, n_elites=16, n_others=4,
+              patch_size=5.0, patch_reduction=0.985, n_sites=3,
+              n_elite_sites=1):
+    def model(generations):
+        return OriginalABC(
+            generations,
+            pop_size,
+            n_elites,
+            n_others,
+            patch_size,
+            patch_reduction,
+            n_sites,
+            n_elite_sites
+        )
+    return model
+
+
+def ba_model(pop_size=50, loudness=0.8, pulse_rate=0.95, pf_min=0, pf_max=10):
+    def model(generations):
+        return OriginalBA(
+            generations,
+            pop_size,
+            loudness,
+            pulse_rate,
+            pf_min,
+            pf_max
+        )
+    return model
+
+
+class DAMetaHeuristic:
     """
-    Artificial Bee Colony for Defensive Alliance
+    Wrapper mealpy for solving Defensive Alliance
     """
 
-    def __init__(self, pop_size=50, n_elites=16, n_others=4, patch_size=5.0,
-                 patch_reduction=0.985, n_sites=3, n_elite_sites=1):
-        self.pop_size = pop_size
-        self.n_elites = n_elites
-        self.n_others = n_others
-        self.patch_size = patch_size
-        self.patch_reduction = patch_reduction
-        self.n_sites = n_sites
-        self.n_elite_sites = n_elite_sites
+    def __init__(self, model):
+        self.model = model
 
     def run(self, graph, generations=1000, r=-1):
-        model = OriginalABC(
-            generations,
-            self.pop_size,
-            self.n_elites,
-            self.n_others,
-            self.patch_size,
-            self.patch_reduction,
-            self.n_sites,
-            self.n_elite_sites
-        )
+        model = self.model(generations)
 
         def fitness_function(solution):
             new_solution = clean_solution(solution)

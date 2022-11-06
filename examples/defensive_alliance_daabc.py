@@ -1,8 +1,8 @@
 import networkx as nx
 
 from alliancelib.algorithms.heuristics.swarm import \
-    DAABC
+    abc_model, ba_model, DAMetaHeuristic
 
 g = nx.gnp_random_graph(100, 0.25)
-solver = DAABC()
+solver = DAMetaHeuristic(abc_model())
 solver.run(g)
