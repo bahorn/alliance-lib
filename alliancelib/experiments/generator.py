@@ -7,7 +7,7 @@ import numpy as np
 import networkx as nx
 import pandas as pd
 
-from alliancelib.experiments.generate import planted_vc
+from alliancelib.experiments.generate import planted_vc, fixed_gmda
 from alliancelib.experiments.cleaning import min_degree_add
 from .util import gen_seed
 
@@ -23,8 +23,11 @@ class GraphGenerator:
     def count(self):
         return 0
 
-    def at(self):
+    def at(self, idx):
         raise IndexError
+
+    def name(self):
+        return self.__class__.__name__
 
 
 class PreGeneratedGenerator(GraphGenerator):
@@ -158,6 +161,11 @@ def range_to_list(t, r, split, axis):
     return [r]
 
 
+def remove_attributes(graph, attr):
+    for node in graph.nodes():
+        del graph.nodes[node]['pos']
+
+
 class WaxmanGenerator(PreGeneratedGenerator):
     """
     Waxman Generator, but with a fixed degree
@@ -193,6 +201,7 @@ class WaxmanGenerator(PreGeneratedGenerator):
             seed = gen_seed([self.seed, n, b, a, s, i])
             g = nx.waxman_graph(n, beta=b, alpha=a, seed=seed)
             if nx.is_connected(g):
+                remove_attributes(g, 'pos')
                 return (res1, g)
 
         return (res1, None)
@@ -312,6 +321,41 @@ class PlantedVertexCoverGenerator(PreGeneratedGenerator):
             seed = gen_seed([self.seed, n_i, n_x, p_i, p_x, s, i])
             vc, g = planted_vc(n_i + n_x, n_i, p_i, p_x, seed=seed)
             if nx.is_connected(g):
-                return (res1, (vc, g))
+                res1['vc'] = list(vc)
+                return (res1, g)
 
         return (res1, None)
+
+
+class FixedGMDAGenerator(PreGeneratedGenerator):
+    """
+    Fixed GMDA Generator
+    """
+
+    def __init__(self, k_range, extra_range, split='geom',
+                 axis=10):
+        k_i = range_to_list(int, k_range, split, axis)
+        e_i = range_to_list(int, extra_range, split, axis)
+
+        self.potential = [
+            (ki, ei)
+            for ki, ei in itertools.product(
+                k_i, e_i
+            )
+        ]
+
+        self.axis = axis
+        self.split = split
+
+        super().__init__(
+            {idx: self.generate(idx) for idx in range(len(self.potential))}
+        )
+
+    def generate(self, idx):
+        """
+        Generate a graph, and its properties for a specific index
+        """
+        k, extra = self.potential[idx]
+        res1 = {'k': k, 'extra': extra}
+        g = fixed_gmda(k, extra)
+        return (res1, g)

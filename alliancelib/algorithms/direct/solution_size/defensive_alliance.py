@@ -10,7 +10,7 @@ from alliancelib.ds.alliances.da import \
     defensive_alliance_threshold
 from alliancelib.ds.alliances.conversion import convert_to_da
 
-from .base import alliance_solution_size
+from .base import alliance_solution_size, alliance_solution_size_parallel
 
 
 def defensive_alliance(graph: Graph,
@@ -39,6 +39,34 @@ def defensive_alliance(graph: Graph,
     return None
 
 
+def defensive_alliance_parallel(graph: Graph,
+                                k: int,
+                                r: int = -1,
+                                threads: int = 1
+                                ) -> Optional[DefensiveAlliance]:
+    """
+    Find a DefensiveAlliance up to `k` vertices in size.
+
+    FPT running time.
+    """
+
+    def vertex_predicate(g: Graph, v: NodeId, d: int):
+        return defensive_alliance_threshold(g, v, r) <= d
+
+    def solution_predicate(g: Graph, v: NodeSet):
+        return is_defensive_alliance(g, v, r)
+
+    res = alliance_solution_size_parallel(
+        graph, [1], vertex_predicate, solution_predicate, k, threads
+    )
+
+    if res:
+        return convert_to_da(res, r)
+
+    return None
+
+
 __all__ = [
     'defensive_alliance',
+    'defensive_alliance_parallel'
 ]

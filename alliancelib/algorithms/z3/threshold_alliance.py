@@ -4,7 +4,7 @@ Implementation of an Z3 solver for Threshold Alliance
 """
 from typing import Any, Dict, Optional
 
-from z3 import Bool, Int, If, Sum, Solver, sat
+from z3 import Bool, Int, If, Sum, Solver, sat, set_option
 
 from alliancelib.ds.types import Graph
 from alliancelib.ds.alliances.threshold import ThresholdAlliance
@@ -24,17 +24,16 @@ def bool_to_int(inp: Bool) -> Int:
     return If(inp, 1, 0)
 
 
-def threshold_alliance_problem(graph: Graph,
+def threshold_alliance_problem(problem,
+                               graph: Graph,
                                thresholds: Dict,
                                solution_range: tuple[
                                     Optional[int], Optional[int]
-                               ],
+                               ]
                                ) -> tuple[Dict, Solver]:
     """
     Generate an instance of a threshold alliance problem.
     """
-    problem = Solver()
-
     # Create a boolean variable for each vertex
     vertices = []
     vertices_lookup: Dict = {'forwards': {}, 'backwards': {}}
@@ -67,7 +66,8 @@ def threshold_alliance_problem(graph: Graph,
     return (vertices_lookup, problem)
 
 
-def threshold_alliance_solver(graph: Graph,
+def threshold_alliance_solver(solver: Solver,
+                              graph: Graph,
                               thresholds: Dict,
                               solution_range: tuple[
                                 Optional[int], Optional[int]
@@ -80,7 +80,7 @@ def threshold_alliance_solver(graph: Graph,
     ILP solver for threshold alliances
     """
     variables, problem = threshold_alliance_problem(
-            graph, thresholds, solution_range
+            solver, graph, thresholds, solution_range
     )
 
     if problem.check() != sat:

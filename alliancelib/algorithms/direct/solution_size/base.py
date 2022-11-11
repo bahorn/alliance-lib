@@ -6,12 +6,12 @@ This is in FPT for many cases, include Defensive Alliance.
 This is because you can ignore vertices that would add too many neighbours,
 caping the total number of vertices to consider.
 """
-from typing import Optional
+import multiprocessing as mp
+from typing import Optional, List
 from alliancelib.ds import \
     Graph, \
     NodeSet, \
     VertexSet
-
 from .common import VertexPredicate, SolutionPredicate
 
 
@@ -87,6 +87,90 @@ def alliance_solution_size(graph: Graph,
     )
 
 
+def new_sets(graph: Graph, base: List, k: int,
+             vertex_predicate: VertexPredicate):
+    """
+    Compute a list of adjacent sets for a given list.
+    """
+    neighbours: NodeSet = set()
+    for vertex in base:
+        neighbours = neighbours.union(set(graph.neighbors(vertex)))
+    neighbours -= set(base)
+
+    depth = k-len(base)
+
+    neighbours_ = filter(
+        lambda v: vertex_predicate(graph, v, depth),
+        neighbours
+    )
+
+    res = []
+    for neighbour in neighbours_:
+        res.append(base + [neighbour])
+
+    return res
+
+
+def alliance_solution_size_parallel(graph: Graph,
+                                    initial: List,
+                                    vertex_predicate: VertexPredicate,
+                                    solution_predicate: SolutionPredicate,
+                                    k: int,
+                                    threads: int = 1
+                                    ) -> Optional[VertexSet]:
+    work_queue = mp.JoinableQueue()
+
+    manager = mp.Manager()
+    state = manager.dict()
+    state['found'] = False
+    state['size'] = len(graph.nodes())
+    state['solution'] = graph.nodes()
+
+    # using shared memory for this, so make it faster.
+    found_state = mp.Value('b', False)
+
+    def worker(q, fs, idx, return_dict):
+        while True:
+            item = q.get()
+
+            # just clear the queue if we are done
+            if fs.value:
+                q.task_done()
+                continue
+
+            if solution_predicate(graph, item):
+                fs.value = True
+                return_dict['found'] = True
+                return_dict['solution'] = item
+                return_dict['size'] = len(item)
+
+            if len(item) < k:
+                neighbours = new_sets(graph, item, k, vertex_predicate)
+                for neighbour in neighbours:
+                    q.put(neighbour)
+
+            q.task_done()
+
+    processes = []
+    for i in range(threads):
+        p = mp.Process(target=worker, daemon=True, args=(
+            work_queue, found_state, i, state
+        ))
+        processes.append(p)
+        p.start()
+
+    for item in initial:
+        work_queue.put([item])
+
+    work_queue.join()
+
+    if state['found']:
+        return VertexSet(graph, state['solution'])
+
+    return None
+
+
 __all__ = [
-    'alliance_solution_size'
+    'alliance_solution_size',
+    'alliance_solution_size_parallel'
 ]

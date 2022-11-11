@@ -4,9 +4,9 @@
 import networkx as nx
 
 
-def fixed_gmda(k):
-    g = nx.complete_graph(2*k + 1)
-    core_path = [(2*k + 1) + i for i in range(k)]
+def fixed_gmda(k, extra=0):
+    g = nx.complete_graph(2*k + 1 + extra)
+    core_path = [(2*k + 1 + extra) + i for i in range(k)]
     p = nx.cycle_graph(core_path)
 
     n = nx.compose(g, p)

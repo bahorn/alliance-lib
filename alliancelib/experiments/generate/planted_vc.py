@@ -1,13 +1,16 @@
 """
-
+Planted VertexCover
 """
 import networkx as nx
 import random
+from alliancelib.algorithms.ilp.vertex_cover.common import VertexCover
 
 
 def planted_vc(n, max_vc, p_internal, p_external, seed=None):
     random.seed = seed
     g = nx.Graph()
+
+    print(n, max_vc, p_internal, p_external)
 
     g.add_nodes_from(range(n))
 
@@ -23,4 +26,6 @@ def planted_vc(n, max_vc, p_internal, p_external, seed=None):
             if random.random() < p_external:
                 g.add_edge(vertex, target)
 
-    return set(range(max_vc)), g
+    vc = VertexCover(g, set(range(max_vc)))
+    print(vc)
+    return (set(range(max_vc)), g)
