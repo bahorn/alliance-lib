@@ -22,7 +22,8 @@ from .common import VertexCover, VertexCoverSet
 def vc_ilp_model(graph: Graph,
                  thresholds: Dict,
                  vc: VertexCoverSet,
-                 adjacent: Dict
+                 adjacent: Dict,
+                 solution_range = (None, None)
                  ) -> LpProblem:
     """
     Generate an ILP model for a instance of threshold alliance parameterized by
@@ -47,6 +48,11 @@ def vc_ilp_model(graph: Graph,
             vc_adjacent[i].append(variable)
 
     problem += lpSum(vertices)
+
+    if solution_range[0]:
+        problem += lpSum(vertices) >= solution_range[0]
+    if solution_range[1]:
+        problem += lpSum(vertices) <= solution_range[1]
 
     # now for each vertex in the vc, we need to find all the sets of variables
     # it is adjacent to in the vc, and check it is >= its threshold.
@@ -125,6 +131,7 @@ def model_to_alliance(graph: Graph,
 def threshold_alliance_solver(vertex_cover: VertexCover,
                               thresholds: Dict,
                               solver: Solver,
+                              solution_range = (1, None)
                               ) -> Optional[ThresholdAlliance]:
     """
     Computes an alliance based of a known vertex cover.
@@ -145,7 +152,13 @@ def threshold_alliance_solver(vertex_cover: VertexCover,
     # Next, branch on every vertex in the VC.
     # Worth noting its hard to bound, so we kinda have to try all combinations.
     # Starting from 2, due to the previous step.
-    for i in range(2, len(vc) + 1):
+
+    max_size = len(vc) + 1
+    if solution_range[1]:
+        if max_size > solution_range[1]:
+            max_size = solution_range[1]
+
+    for i in range(1, max_size):
         for selected_vertices in combinations(vc, i):
             # For this combination of vertices we first discover neighbours of
             # the selected subset of the vc.
@@ -156,8 +169,14 @@ def threshold_alliance_solver(vertex_cover: VertexCover,
             if not ns:
                 continue
 
+            new_solution_range = (solution_range[0] - i, solution_range[1] - i)
+
             model = vc_ilp_model(
-                graph, thresholds, set(selected_vertices), ns
+                graph,
+                thresholds,
+                set(selected_vertices),
+                ns,
+                solution_range=new_solution_range
             )
             solver.solve(model)
 

@@ -5,11 +5,13 @@ import json
 import os
 
 from alliancelib.experiments.generator import \
+    GNPGenerator, \
     GNPBetterGenerator, \
     RegularGenerator, \
     WaxmanGenerator, \
     PlantedVertexCoverGenerator, \
-    FixedGMDAGenerator
+    FixedGMDAGenerator, \
+    BarabasiAlbertGenerator
 
 
 class UniqueSeed():
@@ -52,115 +54,96 @@ def experiments():
     Experimental Settings.
     """
     axis = 10
-    samples = 5
+    samples = 3
     seed = UniqueSeed()
 
     return [
-      (
-            'PlantedVertexCover',
-            lambda: PlantedVertexCoverGenerator(
-                (5, 20),
-                (100, 100),
-                (0.8, 0.8),
-                (0.4, 0.4),
+        ( # 300 graphs
+            'WaxmanGenerator',
+            lambda: WaxmanGenerator(
+                (150, 150),
+                (0.2, 0.8),
+                (0.15, 0.3),
                 split='linear',
                 axis=axis,
                 samples=samples,
                 seed=seed.next()
             ),
         ),
+        ( # 300 graphs
+            'BarabasiAlbert',
+            lambda: BarabasiAlbertGenerator(
+                (50, 200),
+                (2, 25),
+                split='linear',
+                axis=axis,
+                samples=samples,
+                seed=seed.next()
+            )
+        ),
+        ( # 300 graphs
+            'GNP',
+            lambda: GNPGenerator(
+                (100, 150),
+                (0.05, 0.15),
+                split='linear',
+                axis=axis,
+                samples=samples,
+                seed=seed.next()
+            )
+        ),
+        ( # 75 graphs
+            'Regular',
+            lambda: RegularGenerator(
+                (50, 150),
+                (3, 15),
+                split='linear',
+                axis=5,
+                samples=3
+            )
+        ),
+        ( # 75 graphs
+            'Fixed VC',
+            lambda: PlantedVertexCoverGenerator(
+                (3, 30),
+                (50, 50),
+                (0.8, 0.8),
+                (0.5, 0.85),
+                split='linear',
+                axis=5,
+                samples=3
+            )
+        ),
+        ( # 100 graphs
+            'FixedGMDA',
+            lambda: FixedGMDAGenerator(
+                (3, 100),
+                (0, 500),
+                split='linear',
+                axis=10
+            )
+        )
     ]
+
+
+def selftest_experiments():
+    """
+    Experimental Settings.
+    """
+    axis = 3
+    samples = 3
+    seed = UniqueSeed()
 
     return [
         (
-            'GNP-n100-500,d2-10',
+            'GNP-n50-75,d2-10',
             lambda: GNPBetterGenerator(
-                (100, 500),
+                (50, 75),
                 (2, 10),
                 split='linear',
                 axis=axis,
                 samples=samples,
                 seed=seed.next()
-            )
-        ),
-        (
-            'GNP-n100-100,d5',
-            lambda: GNPBetterGenerator(
-                (500, 1000),
-                (5, 5),
-                split='linear',
-                axis=axis,
-                samples=samples,
-                seed=seed.next()
-            )
-        ),
-        (
-            'Regular-n25-100,d3-15',
-            lambda: RegularGenerator(
-                (25, 100),
-                (3, 15),
-                split='linear',
-                axis=axis,
-                samples=samples,
-                seed=seed.next()
-            ),
-        ),
-        (
-            'Waxman-n50-200,b0.1-0.8,a0.15',
-            lambda: WaxmanGenerator(
-                (100, 200),
-                (0.15, 0.8),
-                (0.15, 0.15),
-                split='linear',
-                axis=axis,
-                samples=samples,
-                seed=seed.next()
-            ),
-        ),
-        (
-            'Waxman-n75,b0.05-0.95,a0.05-0.95',
-            lambda: WaxmanGenerator(
-                (75, 75),
-                (0.05, 0.95),
-                (0.05, 0.95),
-                split='linear',
-                axis=axis,
-                samples=samples,
-                seed=seed.next()
-            )
-        ),
-        (
-            'Waxman-n100,b0.05-0.95,a0.05-0.95',
-            lambda: WaxmanGenerator(
-                (100, 100),
-                (0.05, 0.95),
-                (0.05, 0.95),
-                split='linear',
-                axis=axis,
-                samples=samples,
-                seed=seed.next()
-            )
-        ),
-        (
-            'PlantedVertexCover',
-            lambda: PlantedVertexCoverGenerator(
-                (5, 20),
-                (100, 100),
-                (0.8, 0.8),
-                (0.4, 0.4),
-                split='linear',
-                axis=axis,
-                samples=samples,
-                seed=seed.next()
-            ),
-        ),
-        (
-            'FixedGMDA-n5-100,e0-25',
-            lambda: FixedGMDAGenerator(
-                (5, 100),
-                (0, 50),
-                split='linear',
-                axis=10
             )
         )
     ]
@@ -184,9 +167,30 @@ def dataset_generator(outdir):
             )
 
 
+@click.command()
+@click.argument('outdir')
+def selftest_generator(outdir):
+    os.makedirs(f'{outdir}/graphs', exist_ok=True)
+    os.makedirs(f'{outdir}/meta', exist_ok=True)
+
+    exp = selftest_experiments()
+
+    for idx, (name, experiment) in enumerate(exp):
+        generator = experiment()
+        for i in range(generator.count()):
+            write_graph_with_meta(
+                outdir,
+                name,
+                idx,
+                generator.name(),
+                generator.at(i)
+            )
+
+
 @click.group()
 def generator():
     pass
 
 
 generator.add_command(dataset_generator)
+generator.add_command(selftest_generator)

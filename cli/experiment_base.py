@@ -1,5 +1,6 @@
 import os
 import time
+import multiprocessing
 from z3 import SolverFor, set_param
 from pulp.apis import get_solver
 from pulp.constants import LpSolutionOptimal
@@ -13,6 +14,12 @@ from alliancelib.algorithms.ilp.vertex_cover import \
 
 from alliancelib.algorithms.z3 import \
         defensive_alliance_solver as z3_defensive_alliance_solver
+
+from alliancelib.algorithms.heuristics.genetic import \
+        defensive_alliance_genetic
+
+from alliancelib.algorithms.direct.solution_size import \
+        defensive_alliance as da_solution_size
 
 from alliancelib.experiments.util import TimeoutException, timelimit
 
@@ -48,7 +55,7 @@ def ilp_da_solver(g, time_limit=900, verbose=False, threads=1):
     return (None, None, [])
 
 
-def ilp_vc_da_solver(g, vc=None, time_limit=900, verbose=False, threads=1):
+def ilp_vc_da_solver(g, vc=None, k=None, time_limit=900, verbose=False, threads=1):
     r = -1
 
     vc_ = vc
@@ -70,7 +77,7 @@ def ilp_vc_da_solver(g, vc=None, time_limit=900, verbose=False, threads=1):
     try:
         with timelimit(time_limit):
             alliance = vc_solver(
-                vertex_cover, solver, r=r
+                vertex_cover, solver, r=r, solution_range=(1, k)
             )
     except TimeoutException:
         pass
@@ -116,6 +123,8 @@ def ilp_vc_solver(g, time_limit=900, threads=1, verbose=False):
         threads=threads
     )
 
+    cover = None
+
     try:
         with timelimit(time_limit):
             cover = vertex_cover_solver(g, solver)
@@ -125,6 +134,46 @@ def ilp_vc_solver(g, time_limit=900, threads=1, verbose=False):
     return cover
 
 
-def solution_size(g, set, threads=1):
-    pass
-    #alliance = None
+class Carrier(Exception):
+    def __init__(self, value):
+        self.value = value
+
+
+def worker(data):
+    g, k, i = data
+    res = da_solution_size(g, k, initial=[str(i)])
+    if res:
+        raise Carrier(res.vertices())
+    return None
+
+
+def solution_size_solver(g, initial, k, threads=1, time_limit=900):
+    data = zip(
+        [g for _ in range(len(initial))],
+        [k for _ in range(len(initial))],
+        initial
+    )
+    res = None
+
+
+    start = time.time()
+    with multiprocessing.Pool(processes=threads) as pool:
+        try:
+            with timelimit(time_limit):
+                list(pool.imap_unordered(worker, data))
+        except Carrier as c:
+            res = c.value
+            pool.close()
+        except TimeoutException:
+            pool.close()
+    end = time.time()
+
+    if res:
+        return (end - start, len(res), res)
+
+    return (None, None, [])
+
+def ga_da_solver(g, time_limit=900, verbose=False):
+    cover = defensive_alliance_genetic(g, generations=200)
+    print(cover)
+    return (0.0, len(cover), cover.vertices())

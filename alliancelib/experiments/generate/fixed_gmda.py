@@ -2,11 +2,13 @@
 
 """
 import networkx as nx
+from alliancelib.ds.alliances.da import DefensiveAlliance
 
 
 def fixed_gmda(k, extra=0):
-    g = nx.complete_graph(2*k + 1 + extra)
-    core_path = [(2*k + 1 + extra) + i for i in range(k)]
+    start_range = 2*k + 1 + extra
+    g = nx.complete_graph(start_range)
+    core_path = [start_range + i for i in range(k)]
     p = nx.cycle_graph(core_path)
 
     n = nx.compose(g, p)
@@ -15,4 +17,6 @@ def fixed_gmda(k, extra=0):
         n.add_edge(node, idx*2)
         n.add_edge(node, idx*2 + 1)
 
-    return g
+    DefensiveAlliance(n, range(start_range, start_range+k), r=-1)
+
+    return n

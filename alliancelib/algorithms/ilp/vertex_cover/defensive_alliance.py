@@ -18,7 +18,8 @@ from .threshold_alliance import threshold_alliance_solver
 
 def defensive_alliance_solver(vertex_cover: VertexCover,
                               solver: Solver,
-                              r: int = -1
+                              r: int = -1,
+                              solution_range = (1, None)
                               ) -> Optional[DefensiveAlliance]:
     """
     Find an defensive alliance based on vertex cover.
@@ -30,7 +31,7 @@ def defensive_alliance_solver(vertex_cover: VertexCover,
         for node in graph.nodes()
     }
 
-    alliance = threshold_alliance_solver(vertex_cover, thresholds, solver)
+    alliance = threshold_alliance_solver(vertex_cover, thresholds, solver, solution_range)
 
     if alliance:
         return convert_to_da(alliance)
