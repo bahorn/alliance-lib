@@ -5,7 +5,6 @@ import itertools
 import random
 import numpy as np
 import networkx as nx
-import pandas as pd
 
 from alliancelib.experiments.generate import planted_vc, fixed_gmda
 from alliancelib.experiments.cleaning import min_degree_add
@@ -47,6 +46,54 @@ class PreGeneratedGenerator(GraphGenerator):
     def at(self, idx):
         res = self.generated[idx]
         return res
+
+
+class GNPGenerator(PreGeneratedGenerator):
+    """
+    GNP Generator, but with a fixed degree
+    """
+
+    def __init__(self, n_range, p_range, split='geom', axis=10, samples=3,
+                 seed=0, min_degree=2):
+        splitter = np.linspace
+        if split == 'geom':
+            splitter = np.geomspace
+
+        nr = list(
+            map(int, splitter(n_range[0], n_range[1], num=axis))
+        )
+        pr = list(
+            map(float, splitter(p_range[0], p_range[1], num=axis))
+        )
+
+        self.potential = [
+            (x, y, s)
+            for x, y, s in itertools.product(nr, pr, range(samples))
+        ]
+
+        self.axis = axis
+        self.samples = samples
+        self.seed = seed
+        self.split = split
+        self.min_degree = min_degree
+
+        super().__init__(
+            {idx: self.generate(idx) for idx in range(len(self.potential))}
+        )
+
+    def generate(self, idx, attempts=25):
+        """
+        Generate a graph, and its properties for a specific index
+        """
+        x, p, s = self.potential[idx]
+        res1 = {'n': x, 'p': p, 'iteration': s}
+        for i in range(attempts):
+            seed = gen_seed([self.seed, x, p, i, s])
+            g = nx.gnp_random_graph(x, p, seed)
+            if nx.is_connected(g):
+                return (res1, g)
+
+        return (res1, None)
 
 
 class GNPBetterGenerator(PreGeneratedGenerator):
@@ -191,7 +238,7 @@ class WaxmanGenerator(PreGeneratedGenerator):
             {idx: self.generate(idx) for idx in range(len(self.potential))}
         )
 
-    def generate(self, idx, attempts=5):
+    def generate(self, idx, attempts=25):
         """
         Generate a graph, and its properties for a specific index
         """
@@ -311,7 +358,7 @@ class PlantedVertexCoverGenerator(PreGeneratedGenerator):
             {idx: self.generate(idx) for idx in range(len(self.potential))}
         )
 
-    def generate(self, idx, attempts=5):
+    def generate(self, idx, attempts=25):
         """
         Generate a graph, and its properties for a specific index
         """
@@ -332,7 +379,7 @@ class FixedGMDAGenerator(PreGeneratedGenerator):
     Fixed GMDA Generator
     """
 
-    def __init__(self, k_range, extra_range, split='geom',
+    def __init__(self, k_range, extra_range, split='linspace',
                  axis=10):
         k_i = range_to_list(int, k_range, split, axis)
         e_i = range_to_list(int, extra_range, split, axis)
@@ -358,4 +405,46 @@ class FixedGMDAGenerator(PreGeneratedGenerator):
         k, extra = self.potential[idx]
         res1 = {'k': k, 'extra': extra}
         g = fixed_gmda(k, extra)
+        return (res1, g)
+
+
+class BarabasiAlbertGenerator(PreGeneratedGenerator):
+    """
+    Barabasi-Albert Model
+    """
+
+    def __init__(self, n_range, m_range, split='geom', axis=10, samples=3,
+                 seed=0):
+        splitter = np.linspace
+        if split == 'geom':
+            splitter = np.geomspace
+
+        nr = list(
+            map(int, splitter(n_range[0], n_range[1], num=axis))
+        )
+        mr = list(
+            map(int, splitter(m_range[0], m_range[1], num=axis))
+        )
+
+        self.potential = [
+            (x, y, s)
+            for x, y, s in itertools.product(nr, mr, range(samples))
+        ]
+
+        self.axis = axis
+        self.samples = samples
+        self.seed = seed
+        self.split = split
+
+        super().__init__(
+            {idx: self.generate(idx) for idx in range(len(self.potential))}
+        )
+
+    def generate(self, idx):
+        """
+        Generate a graph, and its properties for a specific index
+        """
+        n, m, s = self.potential[idx]
+        res1 = {'n': n, 'm': m, 'iteration': s}
+        g = nx.barabasi_albert_graph(n, m)
         return (res1, g)
