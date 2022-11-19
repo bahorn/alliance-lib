@@ -1,4 +1,6 @@
 import os
+import sys
+import signal
 import json
 import random
 import click
@@ -134,6 +136,7 @@ def process_ilp_vc(infile, outdir, timelimit, threads, repeat, verbose):
 
     df = pd.DataFrame(res)
     df.to_csv(f'{outdir}/{f_uuid}.csv')
+    os.kill(os.getpid(),signal.SIGKILL)
 
 
 @click.command()

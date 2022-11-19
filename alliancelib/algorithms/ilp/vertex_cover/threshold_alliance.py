@@ -229,7 +229,6 @@ def threshold_alliance_solver(vertex_cover: VertexCover,
             # )
             work_queue.put(selected_vertices)
 
-        work_queue.join()
         if found_state.value:
             return ThresholdAlliance(graph, state['alliance'], thresholds)
 

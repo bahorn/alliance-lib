@@ -88,6 +88,10 @@ def ilp_vc_da_solver(g, vc=None, k=None, time_limit=900, verbose=False,
                 threads=threads
             )
     except TimeoutException:
+        for child in multiprocessing.active_children():
+            print('kill')
+            child.terminate()
+        print('killed')
         pass
     end = time.time()
 
