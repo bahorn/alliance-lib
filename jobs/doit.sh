@@ -1,6 +1,6 @@
 #!/bin/bash
 
-./experiment.sh ./first.sh
-./experiment.sh ./vc-ilp.sh
-./experiment.sh ./z3.sh
-./experiment.sh ./ss.sh
+jobs/experiment.sh jobs/first.sh
+jobs/experiment.sh jobs/vc-ilp.sh
+jobs/experiment.sh jobs/z3.sh
+jobs/experiment.sh jobs/ss.sh

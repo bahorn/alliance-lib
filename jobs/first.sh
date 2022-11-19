@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BASEDIR=$1
+BASEDIR=/home/a/dataset
 
 EXACT_TIMEOUT=900
 VC_TIMEOUT=600
@@ -10,10 +10,7 @@ REPEAT=3
 
 find $BASEDIR/meta -type f | \
     xargs -I {} echo \
-        python3 cli process process-ilp {} $BASEDIR/ilp \
-            --threads $THREADS \
-            --timelimit $EXACT_TIMEOUT \
-            --repeat $REPEAT
+        python3 cli process process-ilp {} $BASEDIR/ilp --threads $THREADS --timelimit $EXACT_TIMEOUT --repeat $REPEAT
 
 find $BASEDIR/meta -type f | \
     xargs -I {} echo \

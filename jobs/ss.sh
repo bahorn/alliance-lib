@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BASEDIR=$1
+BASEDIR=/home/a/dataset
 
 EXACT_TIMEOUT=900
 VC_TIMEOUT=600

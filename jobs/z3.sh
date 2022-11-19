@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BASEDIR=$1
+BASEDIR=/home/a/dataset
 
 EXACT_TIMEOUT=900
 VC_TIMEOUT=600
@@ -13,4 +13,5 @@ find $BASEDIR/meta -type f | \
         python3 cli process process-z3 {} $BASEDIR/z3 \
             --threads $THREADS \
             --timelimit $EXACT_TIMEOUT \
+            --max-memory 8192 \
             --repeat $REPEAT

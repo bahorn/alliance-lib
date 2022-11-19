@@ -113,6 +113,15 @@ def process_ilp_vc(infile, outdir, timelimit, threads, repeat, verbose):
     else:
         return
 
+    if not 'alliance' in conf:
+        return
+
+    size = len(conf['alliance'])
+    print(size, infile)
+
+    if size == 0:
+        return
+
     g = nx.read_graphml(g_f)
     res = []
     for i in range(repeat):
@@ -163,8 +172,14 @@ def process_z3(infile, outdir, timelimit, threads, repeat, verbose,
     g = nx.read_graphml(g_f)
     res = []
 
+    if not 'alliance' in conf:
+        return
+
     size = len(conf['alliance'])
     print(size, infile)
+
+    if size == 0:
+        return
 
     for i in range(repeat):
         res1 = z3_da(g, size)
@@ -222,7 +237,7 @@ def process_ga(infile, outdir, timelimit, threads, repeat, verbose):
 @click.argument('infile')
 @click.argument('outdir')
 @click.option('--threads', default=4)
-@click.option('--max-size', default=10)
+@click.option('--max-size', default=30)
 @click.option('--repeat', default=3)
 @click.option('--timelimit', type=float, default=900)
 @click.option('--seed', default=0)
@@ -250,6 +265,15 @@ def process_solution_size(infile, outdir, threads, max_size, timelimit, repeat, 
     g_f = conf['file']
     g = nx.read_graphml(g_f)
 
+    if not 'alliance' in conf:
+        return
+
+    s = len(conf['alliance'])
+    print(s, infile)
+
+    if s == 0:
+        return
+
     alliance = []
     size = max_size
     if 'alliance' in conf:
@@ -272,7 +296,10 @@ def process_solution_size(infile, outdir, threads, max_size, timelimit, repeat, 
 
         if size < max_size:
             alliance = conf['alliance']
-            alliance += random.sample(g.nodes(), max_size - size)
+            if (max_size - size) < len(g.nodes()):
+                alliance += random.sample(g.nodes(), max_size - size)
+            else:
+                alliance += random.sample(g.nodes(), len(g.nodes()))
 
         if not alliance:
             return
