@@ -131,14 +131,17 @@ def process_ilp_vc(infile, outdir, timelimit, threads, repeat, verbose):
 @click.argument('infile')
 @click.argument('outdir')
 @click.option('--timelimit', type=float, default=900)
+@click.option('--max-memory', default=8192)
 @click.option('--threads', default=4)
 @click.option('--repeat', default=3)
 @click.option('--verbose', is_flag=True, default=False)
-def process_z3(infile, outdir, timelimit, threads, repeat, verbose):
+def process_z3(infile, outdir, timelimit, threads, repeat, verbose,
+               max_memory):
     def z3_da(graph, k):
         res = z3_da_solver(
             graph,
             k=k,
+            max_memory=max_memory,
             time_limit=timelimit,
             threads=threads,
             verbose=verbose

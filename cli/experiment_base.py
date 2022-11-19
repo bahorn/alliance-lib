@@ -55,7 +55,8 @@ def ilp_da_solver(g, time_limit=900, verbose=False, threads=1):
     return (None, None, [])
 
 
-def ilp_vc_da_solver(g, vc=None, k=None, time_limit=900, verbose=False, threads=1):
+def ilp_vc_da_solver(g, vc=None, k=None, time_limit=900, verbose=False,
+                     threads=1):
     r = -1
 
     vc_ = vc
@@ -65,19 +66,26 @@ def ilp_vc_da_solver(g, vc=None, k=None, time_limit=900, verbose=False, threads=
 
     vertex_cover = VertexCover(g, vc_)
 
-    solver = get_solver(
-        os.getenv('ILP_SOLVER') or 'PULP_CBC_CMD',
-        timeLimit=time_limit,
-        msg=verbose,
-        threads=threads
-    )
+    solver = [
+        get_solver(
+            os.getenv('ILP_SOLVER') or 'PULP_CBC_CMD',
+            timeLimit=time_limit,
+            msg=verbose,
+            threads=1
+        )
+        for i in range(threads)
+    ]
     alliance = None
 
     start = time.time()
     try:
         with timelimit(time_limit):
             alliance = vc_solver(
-                vertex_cover, solver, r=r, solution_range=(1, k)
+                vertex_cover,
+                solver,
+                r=r,
+                solution_range=(1, k),
+                threads=threads
             )
     except TimeoutException:
         pass
@@ -89,11 +97,13 @@ def ilp_vc_da_solver(g, vc=None, k=None, time_limit=900, verbose=False, threads=
     return (None, None, [])
 
 
-def z3_da_solver(g, k, time_limit=900, threads=1, verbose=False):
+def z3_da_solver(g, k, time_limit=900, max_memory=1024, threads=1,
+                 verbose=False):
     alliance = None
-    set_param("verbose", int(verbose) * 2)
+    set_param("verbose", int(verbose) * 10)
     set_param("parallel.enable", threads > 1)
     set_param("parallel.threads.max", threads)
+    set_param("memory_max_size", max_memory)
     solver = SolverFor('QF_FD')
     solver.set("timeout", int(time_limit)*1000)
 

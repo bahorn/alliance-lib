@@ -18,6 +18,8 @@ from alliancelib.algorithms.ilp.common import variable_name, valid_solution
 
 from .common import VertexCover, VertexCoverSet
 
+import multiprocessing as mp
+
 
 def vc_ilp_model(graph: Graph,
                  thresholds: Dict,
@@ -131,7 +133,8 @@ def model_to_alliance(graph: Graph,
 def threshold_alliance_solver(vertex_cover: VertexCover,
                               thresholds: Dict,
                               solver: Solver,
-                              solution_range = (1, None)
+                              solution_range = (1, None),
+                              threads=4,
                               ) -> Optional[ThresholdAlliance]:
     """
     Computes an alliance based of a known vertex cover.
@@ -159,35 +162,76 @@ def threshold_alliance_solver(vertex_cover: VertexCover,
             max_size = solution_range[1]
 
     for i in range(1, max_size):
+        work_queue = mp.JoinableQueue()
+
+        found_state = mp.Value('b', False)
+        manager = mp.Manager()
+        state = manager.dict()
+        state['alliance'] = []
+
+        def worker(s, q, fs, return_dict):
+            while True:
+                selected_vertices = q.get()
+
+                if fs.value:
+                    q.task_done()
+                    continue
+
+                ns = neighbour_set(
+                    graph, thresholds, vc, set(selected_vertices)
+                )
+
+                if not ns:
+                    q.task_done()
+                    continue
+
+                new_solution_range = (
+                    solution_range[0] - i,
+                    solution_range[1] - i
+                )
+
+                model = vc_ilp_model(
+                    graph,
+                    thresholds,
+                    set(selected_vertices),
+                    ns,
+                    solution_range=new_solution_range
+                )
+                s.solve(model)
+
+                if valid_solution(model.status):
+                    fs.value = True
+                    alliance = model_to_alliance(
+                        graph, thresholds, model, set(selected_vertices), ns
+                    )
+                    return_dict['alliance'] = alliance.vertices()
+
+                q.task_done()
+
+        processes = []
+
+        for j in range(threads):
+            p = mp.Process(
+                target=worker,
+                daemon=True,
+                args=(solver[j], work_queue, found_state, state)
+            )
+            processes.append(p)
+            p.start()
+
         for selected_vertices in combinations(vc, i):
-            # For this combination of vertices we first discover neighbours of
-            # the selected subset of the vc.
-            ns = neighbour_set(
-                graph, thresholds, vc, set(selected_vertices)
-            )
-
-            if not ns:
-                continue
-
-            new_solution_range = (solution_range[0] - i, solution_range[1] - i)
-
-            model = vc_ilp_model(
-                graph,
-                thresholds,
-                set(selected_vertices),
-                ns,
-                solution_range=new_solution_range
-            )
-            solver.solve(model)
-
-            if not valid_solution(model.status):
-                continue
+            # add to queue
 
             # now convert the results into a threshold alliance.
 
-            return model_to_alliance(
-                graph, thresholds, model, set(selected_vertices), ns
-            )
+            # return model_to_alliance(
+            #    graph, thresholds, model, set(selected_vertices), ns
+            # )
+            work_queue.put(selected_vertices)
+
+        work_queue.join()
+        if found_state.value:
+            return ThresholdAlliance(graph, state['alliance'], thresholds)
 
     return None
 
