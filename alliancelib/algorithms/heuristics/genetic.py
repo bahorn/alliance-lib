@@ -7,6 +7,7 @@ Multiobjective fitness function:
 * if it possible to chisel it down to a valid alliance.
 """
 import random
+import multiprocessing
 from typing import Any, List, Dict, Optional
 
 from deap import base
@@ -34,11 +35,17 @@ class DAGenetic:
     """
     Class representing an instance of a GA algorithm to find a DA.
     """
-    CXPB, MUTPB = 0.5, 0.2
 
-    def __init__(self, graph: Graph, r: int = -1):
+    def __init__(self, graph: Graph, r: int = -1, threads=4,
+                 cxpb=0.5, mutpb=0.2, population=100, verbose=False):
         self.r = r
         self.graph = graph
+        self.threads = threads
+        self.population = population
+        self.best_alliance = None
+        self.CXPB = cxpb
+        self.MUTPB = mutpb
+        self.verbose = False
 
         self.pop: List = []
         self.fitnesses: Any = None
@@ -118,7 +125,7 @@ class DAGenetic:
         """
         Setup the initial population
         """
-        self.pop = self.toolbox.population(n=100)
+        self.pop = self.toolbox.population(n=self.population)
         self.fitnesses = map(self.toolbox.evaluate, self.pop)
         for ind, fit in zip(self.pop, self.fitnesses):
             ind.fitness.values = fit
@@ -130,7 +137,15 @@ class DAGenetic:
         Main GA Loop
         """
         for idx in range(generations):
-            print(f'-- Generation {idx} --')
+            if self.verbose:
+                print(f'-- Generation {idx} --')
+            best_tmp = self.best()
+            if best_tmp:
+                if self.best_alliance:
+                    if len(best_tmp.vertices()) < len(self.best_alliance.vertices()):
+                        self.best_alliance = best_tmp
+                else:
+                    self.best_alliance = best_tmp
             self.step()
 
     def step(self):
@@ -166,23 +181,25 @@ class DAGenetic:
         sum2 = sum(x*x for x in fits)
         std = abs(sum2 / length - mean**2)**0.5
 
-        print(f'  Min {min(fits)}')
-        print(f'  Max {max(fits)}')
-        print(f'  Avg {mean}')
-        print(f'  Std {std}')
+        if self.verbose:
+            print(f'  Min {min(fits)}')
+            print(f'  Max {max(fits)}')
+            print(f'  Avg {mean}')
+            print(f'  Std {std}')
 
 
 def defensive_alliance_genetic(
                                graph: Graph,
                                r: int = -1,
-                               generations: int = 25
+                               generations: int = 25,
+                               threads=4
                                ) -> Optional[DefensiveAlliance]:
     """
     Genetic algorithm for finding Defensive Alliances
     """
-    dag = DAGenetic(graph, r)
+    dag = DAGenetic(graph, r, threads=threads)
     dag.run(generations)
-    return dag.best()
+    return dag.best_alliance
 
 
 __all__ = [

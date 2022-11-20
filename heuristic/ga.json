@@ -1,0 +1,20 @@
+{
+    "command": [
+        "timeout", "-s", "SIGINT", "60",
+        "python3", "heuristic/wrapper.py", "ga-exp", "{job}", "{population}", "{cxpb}", "{mutpb}"
+    ],
+    "objective": [1.0, -1.0, -1.0],
+    "parameters": {
+        "cxpb": 0.5,
+        "mutpb": 0.2,
+        "tournsize": 3,
+        "population": 8,
+        "iterations": 5,
+        "indpb": 0.1
+    },
+    "variables": {
+        "population": ["int", [1, 1000]],
+        "cxpb": ["float", [0.05, 1.0]],
+        "mutpb": ["float", [0.05, 1.0]]
+    }
+}
