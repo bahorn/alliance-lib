@@ -121,6 +121,16 @@ def process_ilp_vc(infile, outdir, timelimit, threads, repeat, verbose):
     size = len(conf['alliance'])
     print(size, infile)
 
+    alliance = conf['alliance']
+    count = 0 
+    for vertex in alliance:
+        if vertex in vertex_cover:
+            count += 1
+
+    print(count)
+    if count >= 15:
+        return
+
     if size == 0:
         return
 
@@ -129,9 +139,10 @@ def process_ilp_vc(infile, outdir, timelimit, threads, repeat, verbose):
     for i in range(repeat):
         k = len(conf['alliance'])
         res1 = ilp_da_vc(g, vc=vertex_cover, k=k)
-        print(res1)
+        print(i, res1)
         res.append(res1)
         if not res1['time']:
+            print('killed')
             break
 
     df = pd.DataFrame(res)

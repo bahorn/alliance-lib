@@ -13,5 +13,5 @@ find $BASEDIR/meta -type f | \
         python3 cli process process-z3 {} $BASEDIR/z3 \
             --threads $THREADS \
             --timelimit $EXACT_TIMEOUT \
-            --max-memory 8192 \
+            --max-memory 2048 \
             --repeat $REPEAT

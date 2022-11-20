@@ -171,7 +171,11 @@ def threshold_alliance_solver(vertex_cover: VertexCover,
 
         def worker(s, q, fs, return_dict):
             while True:
-                selected_vertices = q.get()
+                slected_vertices = None
+                try:
+                    selected_vertices = q.get(timeout=1.0)
+                except:
+                    break
 
                 if fs.value:
                     q.task_done()
@@ -208,17 +212,6 @@ def threshold_alliance_solver(vertex_cover: VertexCover,
 
                 q.task_done()
 
-        processes = []
-
-        for j in range(threads):
-            p = mp.Process(
-                target=worker,
-                daemon=True,
-                args=(solver[j], work_queue, found_state, state)
-            )
-            processes.append(p)
-            p.start()
-
         for selected_vertices in combinations(vc, i):
             # add to queue
 
@@ -228,6 +221,18 @@ def threshold_alliance_solver(vertex_cover: VertexCover,
             #    graph, thresholds, model, set(selected_vertices), ns
             # )
             work_queue.put(selected_vertices)
+
+        processes = []
+        for j in range(threads):
+            p = mp.Process(
+                target=worker,
+                daemon=True,
+                args=(solver[j], work_queue, found_state, state)
+            )
+            processes.append(p)
+            p.start()
+
+        [process.join() for process in processes]
 
         if found_state.value:
             return ThresholdAlliance(graph, state['alliance'], thresholds)
