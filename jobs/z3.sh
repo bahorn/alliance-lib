@@ -10,8 +10,9 @@ REPEAT=3
 
 find $BASEDIR/meta -type f | \
     xargs -I {} echo \
+        timeout 2710 \
         python3 cli process process-z3 {} $BASEDIR/z3 \
             --threads $THREADS \
             --timelimit $EXACT_TIMEOUT \
-            --max-memory 2048 \
+            --max-memory 4096 \
             --repeat $REPEAT
