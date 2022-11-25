@@ -15,7 +15,7 @@ class CostReduction:
 
     def run(self):
         instances = [
-            DACostReduction(self.graph, self.population, self.p_add, self.b_best)
+            DACostReduction(self.graph, self.population, self.p_add, self.p_best)
             for _ in range(self.population)
         ]
         while True:
