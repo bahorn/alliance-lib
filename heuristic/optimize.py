@@ -14,6 +14,7 @@ import json
 import multiprocessing
 import subprocess
 import random
+import math
 import click
 from testcase import TestCase
 
@@ -206,15 +207,15 @@ def get_graph_list(graphs):
 
 def fitness_function_generator(instance, cmd, order, graph_list):
     res = []
-    for size, graph in graph_list:
+    for size, graph in random.sample(graph_list, math.ceil(len(graph_list)*0.1)):
         n_instance = copy.deepcopy(instance)
         n_instance.append(graph)
         n_order = copy.deepcopy(order)
         n_order.append('job')
         avg = sum([
             1 / (evaluate_solution(n_instance, cmd, order=n_order) / size)
-            for i in range(3)
-        ])/3
+            for i in range(1)
+        ])/1
         res.append(avg)
 
     return res

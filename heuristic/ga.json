@@ -8,13 +8,13 @@
         "cxpb": 0.5,
         "mutpb": 0.2,
         "tournsize": 3,
-        "population": 8,
-        "iterations": 5,
+        "population": 32,
+        "iterations": 16,
         "indpb": 0.1
     },
     "variables": {
-        "population": ["int", [1, 1000]],
-        "cxpb": ["float", [0.05, 1.0]],
-        "mutpb": ["float", [0.05, 1.0]]
+        "population": ["int", [10, 1000]],
+        "cxpb": ["float", [0.05, 0.95]],
+        "mutpb": ["float", [0.05, 0.95]]
     }
 }
