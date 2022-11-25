@@ -1,7 +1,7 @@
 {
     "command": [
 	"timeout", "-k", "90", "-s", "SIGINT", "60",
-        "python3", "heuristic/wrapper.py", "cost-reduction", "{job}", "{population}", "{p_add}"
+        "python3", "heuristic/wrapper.py", "cost-reduction", "{job}", "{population}", "{p_add}", "{p_best}"
     ],
     "objective": [1.0, -1.0, -1.0],
     "parameters": {
@@ -14,6 +14,7 @@
     },
     "variables": {
         "population": ["int", [10, 1000]],
-        "p_add": ["float", [0.3, 0.9]]
+        "p_add": ["float", [0.3, 0.9]],
+        "p_best": ["float", [0.0, 1.0]]
     }
 }

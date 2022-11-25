@@ -62,7 +62,8 @@ def ga_exp(job, population, cxpb, mutpb):
 @click.argument('job')
 @click.argument('population', type=int)
 @click.argument('p_add', type=float)
-def cost_reduction(job, population, p_add):
+@click.argument('p_best', type=float)
+def cost_reduction(job, population, p_add, p_best):
     tc = TestCase(job)
 
     conf = tc.data()
@@ -73,7 +74,8 @@ def cost_reduction(job, population, p_add):
             cr.CostReduction(
                 graph,
                 population=population,
-                p_add=p_add
+                p_add=p_add,
+                p_best=p_best
             )
     )
     experiment(wrapper)

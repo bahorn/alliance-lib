@@ -16,9 +16,11 @@ from .cost_functions import da_score, AcceptFunction, ScoreFunction
 
 
 class CostReductionAlgo:
-    def __init__(self, graph, score_function, accept_function, p_add=0.6):
+    def __init__(self, graph, score_function, accept_function, p_add=0.6,
+            p_best=0.9):
         self.graph = graph
         self.p_add = p_add
+        self.p_best = p_best
         self.score_function = score_function
         self.accept_function = accept_function
         self.return_value = None
@@ -60,14 +62,22 @@ class CostReductionAlgo:
                 if score < round_best[0]:
                     round_best = (score, candidate)
 
-            self.current = round_best
-
             # update if we found anything better
-            if round_best[0] < self.best_res[0]:
+            if round_best[0] <= self.best_res[0]:
+                if len(round_best[1]) > len(self.best_res[1]):
+                    if round_best[0] == self.best_res[1]:
+                        continue
+
                 self.best_res = round_best
 
                 if self.accept_function(self.graph, self.best_res[1]):
                     self.return_value = self.best_res[1]
+
+            # decide which one we set as the next one based on their score.
+            if random.random() < self.p_best:
+                self.current = round_best
+            else:
+                self.current = random.choice(candidates)
 
 
 def reduce_cost_core(
@@ -146,7 +156,7 @@ def defensive_alliance_reduce_cost(
     return None
 
 
-def DACostReduction(graph, p_add, r=-1):
+def DACostReduction(graph, p_add, p_best, r=-1):
     def accept_function(graph: Graph, ns: NodeSet) -> bool:
         return is_defensive_alliance(graph, ns, r)
 
@@ -154,7 +164,8 @@ def DACostReduction(graph, p_add, r=-1):
     def score_function(graph: Graph, ns: NodeSet) -> float:
         return da_score(graph, ns, r)
 
-    return CostReductionAlgo(graph, score_function, accept_function, p_add)
+    return CostReductionAlgo(graph, score_function, accept_function, p_add,
+            p_best)
 
 
 __all__ = [

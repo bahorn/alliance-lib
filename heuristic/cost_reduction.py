@@ -3,18 +3,19 @@ from alliancelib.algorithms.heuristics.cost_reduction import \
 
 
 class CostReduction:
-    def __init__(self, graph, population=100, p_add=0.5):
+    def __init__(self, graph, population=100, p_add=0.5, p_best=0.5):
         self.population = population
         self.best_result = None
         self.graph = graph
         self.p_add = p_add
+        self.p_best = p_best
 
     def best(self):
         return self.best_result
 
     def run(self):
         instances = [
-            DACostReduction(self.graph, self.population, self.p_add)
+            DACostReduction(self.graph, self.population, self.p_add, self.b_best)
             for _ in range(self.population)
         ]
         while True:
