@@ -31,28 +31,30 @@ class CostReductionAlgo:
 
     def setup(self):
         first_vertex = random.choice(list(self.graph.nodes()))
-        self.current = (
+        self.current = [
             self.score_function(self.graph, set([first_vertex])),
             set([first_vertex])
-        )
-        self.best_res = (float('inf'), set())
+        ]
+        self.best_res = [float('inf'), set()]
 
     def run(self, generations: int = 25):
         for _ in range(generations):
             candidates = []
             # decide to either add or remove a vertex
-            if random.random() > self.p_add and len(self.current) > 0:
-                candidates = [
-                    self.current[1] - set([i]) for i in self.current[1]
-                ]
-            else:
-                candidates = list(filter(
-                        lambda x: x not in self.current[1],
-                        [
-                            self.current[1].union(set([i]))
-                            for i in self.graph.nodes()
-                        ]
-                ))
+            while not candidates:
+                if random.random() > self.p_add and len(self.current) > 0:
+                    candidates = [
+                        self.current[1] - set([i]) for i in self.current[1]
+                    ]
+                else:
+                    candidates = list(filter(
+                            lambda x: x not in self.current[1],
+                            [
+                                self.current[1].union(set([i]))
+                                for i in self.graph.nodes()
+                            ]
+                    ))
+
 
             round_best: tuple[float, NodeSet] = (float('inf'), set())
 
@@ -60,7 +62,7 @@ class CostReductionAlgo:
             for candidate in candidates:
                 score = self.score_function(self.graph, candidate)
                 if score < round_best[0]:
-                    round_best = (score, candidate)
+                    round_best = [score, candidate]
 
             # update if we found anything better
             if round_best[0] <= self.best_res[0]:
@@ -77,7 +79,9 @@ class CostReductionAlgo:
             if random.random() < self.p_best:
                 self.current = round_best
             else:
-                self.current = random.choice(candidates)
+                choice = random.choice(candidates)
+                score = self.score_function(self.graph, choice)
+                self.current = [score, choice]
 
 
 def reduce_cost_core(

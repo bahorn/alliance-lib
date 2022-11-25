@@ -1,10 +1,11 @@
 import networkx as nx
 
 from alliancelib.algorithms.heuristics.cost_reduction import \
-    defensive_alliance_reduce_cost
+    DACostReduction
 
 g = nx.gnp_random_graph(1000, 0.005)
-for i in range(100):
-    solution = defensive_alliance_reduce_cost(g, -1, steps=100)
-    if solution:
-        print(solution)
+p_add = 0.8
+p_best = 0.9
+solver = DACostReduction(g, p_add, p_best, r=-1)
+solver.run(100)
+print(solver.best())
