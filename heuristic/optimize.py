@@ -201,7 +201,7 @@ def get_graph_list(graphs):
                 (size, file)
             )
 
-    objective = [1.0 for _ in graph_list]
+    objective = [1.0 for _ in range(math.ceil(len(graph_list)*0.1))]
     return (objective, graph_list)
 
 

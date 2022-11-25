@@ -1,6 +1,6 @@
 {
     "command": [
-        "timeout", "-s", "SIGINT", "30",
+	"timeout", "-k", "90", "-s", "SIGINT", "60",
         "python3", "heuristic/wrapper.py", "cost-reduction", "{job}", "{population}", "{p_add}"
     ],
     "objective": [1.0, -1.0, -1.0],
@@ -8,8 +8,8 @@
         "cxpb": 0.5,
         "mutpb": 0.2,
         "tournsize": 3,
-        "population": 32,
-        "iterations": 16,
+        "population": 48,
+        "iterations": 10,
         "indpb": 0.1
     },
     "variables": {
