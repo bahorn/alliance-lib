@@ -123,9 +123,11 @@ def process_ilp_vc(infile, outdir, timelimit, threads, repeat, verbose):
 
     alliance = conf['alliance']
     count = 0 
+    new_vc = []
     for vertex in alliance:
         if vertex in vertex_cover:
             count += 1
+            new_vc.append(vertex)
 
     print(count)
     if count >= 15:

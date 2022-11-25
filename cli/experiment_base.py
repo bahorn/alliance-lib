@@ -113,7 +113,7 @@ def z3_da_solver(g, k, time_limit=900, max_memory=1024, threads=1,
 
     start = time.time()
     try:
-        with timelimit(time_limit):
+        with timelimit(time_limit+10):
             status, alliance = z3_defensive_alliance_solver(
                     solver,
                     g,
